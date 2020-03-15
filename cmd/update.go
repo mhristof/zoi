@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/mhristof/zoi/ansible"
@@ -10,10 +9,6 @@ import (
 )
 
 var (
-	// Used for flags.
-	reqFile     string
-	userLicense string
-
 	updateCmd = &cobra.Command{
 		Use:   "update",
 		Short: "Update the requirements file to the latest versions",
@@ -47,9 +42,4 @@ func init() {
 	updateCmd.PersistentFlags().StringP("output", "o", "latest.yml", "Output file for the latest and greatest")
 
 	rootCmd.AddCommand(updateCmd)
-}
-
-func er(msg interface{}) {
-	fmt.Println("Error:", msg)
-	os.Exit(1)
 }
