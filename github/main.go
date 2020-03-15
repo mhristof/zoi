@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -36,7 +37,6 @@ type HubConfig struct {
 func hubToken() (string, error) {
 	var config HubConfig
 	configData, err := ioutil.ReadFile(filepath.Join(os.Getenv("HOME"), ".config/hub"))
-	fmt.Println(string(configData))
 	if err != nil {
 		return "", err
 	}
@@ -73,14 +73,33 @@ func githubClient() (*github.Client, context.Context) {
 	return github.NewClient(tc), ctx
 }
 
-func (g GitHub) LatestTag(src string) string {
-	url, err := url.Parse(src)
-	if err != nil {
-		panic(err)
+func extractUserRepoFromSrc(src string) (string, string) {
+	log.WithFields(log.Fields{
+		"src": src,
+	}).Debug("Extracting repo")
+
+	parts := strings.Split(src, ".")
+	if len(parts) == 2 {
+		// this is a 'user.role' source
+		return parts[0], parts[1]
 	}
 
-	urlParts := strings.Split(url.Path, "/")
-	tags, err := g.Tags(urlParts[1], urlParts[2])
+	url, err := url.Parse(src)
+	if err == nil {
+		// this is your normal github url
+		// https://github.com/user/repo
+		urlParts := strings.Split(url.Path, "/")
+		return urlParts[0], urlParts[1]
+	}
+
+	log.WithFields(log.Fields{
+		"src": src,
+	}).Panic("Cannot handle source")
+	return "", ""
+}
+
+func (g GitHub) LatestTag(src string) string {
+	tags, err := g.Tags(extractUserRepoFromSrc(src))
 	if err != nil {
 		panic(err)
 	}
@@ -110,7 +129,10 @@ func (a ByVersionDesc) Less(i, j int) bool {
 }
 
 func (g GitHub) Tags(owner string, repo string) ([]*github.RepositoryTag, error) {
-	fmt.Println("retrieving releases for", owner, repo)
+	log.WithFields(log.Fields{
+		"owner": owner,
+		"repo":  repo,
+	}).Debug("Retrieving tags")
 	opt := &github.ListOptions{
 		PerPage: 100,
 	}

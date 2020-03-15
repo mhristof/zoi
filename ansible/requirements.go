@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 
 	"github.com/mhristof/zoi/github"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -39,6 +40,9 @@ func (r *Requirements) Update() *Requirements {
 
 	var latestRequirements Requirements
 	for _, requirement := range *r {
+		log.WithFields(log.Fields{
+			"requirement": requirement,
+		}).Debug("Handling requirement")
 		latest := gh.LatestTag(requirement.Src)
 		latestRequirements = append(latestRequirements, Requirement{
 			Src:     requirement.Src,
