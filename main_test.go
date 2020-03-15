@@ -1,49 +1,51 @@
 package main
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/mhristof/zoi/ansible"
+	"github.com/mhristof/zoi/github"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLatestTag(t *testing.T) {
 	var cases = []struct {
 		name     string
-		in       Requirement
-		expected Requirement
+		in       ansible.Requirement
+		expected ansible.Requirement
 	}{
 		{
 			"unset version",
-			Requirement{
+			ansible.Requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "",
 			},
-			Requirement{
+			ansible.Requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.2.1",
 			},
 		},
 		{
 			"outdated version",
-			Requirement{
+			ansible.Requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.0.0",
 			},
-			Requirement{
+			ansible.Requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.2.1",
 			},
 		},
 	}
 
-	var g GitHub
-	g.New()
+	g := github.New()
 
 	for _, tt := range cases {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel() // marks each test case as capable of running in parallel with each other
 			t.Log(tt.in)
-			assert.Equal(t, g.latestTag(tt.in), &tt.expected, "they should be equal")
+			assert.Equal(t, g.LatestTag(tt.in.Src), tt.expected.Version, "they should be equal")
 		})
 	}
 }
