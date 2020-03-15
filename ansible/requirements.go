@@ -5,12 +5,12 @@ import (
 
 	"github.com/mhristof/zoi/github"
 	"github.com/mhristof/zoi/log"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type Requirement struct {
-	Src     string `yaml:"src"`
-	Version string `yaml:"version"`
+	Src     string `yaml:"src,omitempty"`
+	Version string `yaml:"version,omitempty"`
 }
 
 type Requirements []Requirement
@@ -19,7 +19,10 @@ func (r *Requirements) LoadFromFile(path string) {
 	requirementsData, err := ioutil.ReadFile(path)
 	err = yaml.Unmarshal(requirementsData, r)
 	if err != nil {
-		panic(err)
+		log.WithFields(log.Fields{
+			"path": path,
+			"err":  err,
+		}).Error("Error while loading yaml file")
 	}
 }
 
