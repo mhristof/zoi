@@ -12,9 +12,11 @@ jobs:
       - name: gofmt
         run: test -z $(gofmt -l .)
       - name: go test
-        run: go test
+        run: go test ./...
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: help
+        run: go run main.go help
     
 
 
