@@ -12,7 +12,6 @@ import (
 	"os"
 
 	"github.com/mhristof/zoi/ansible"
-	"github.com/mhristof/zoi/github"
 )
 
 func main() {
@@ -27,17 +26,5 @@ func main() {
 
 	reqs := ansible.Requirements{}
 	reqs.LoadFromFile(requirementsPath)
-
-	gh := github.New()
-
-	var latestRequirements ansible.Requirements
-	for _, requirement := range reqs {
-		latest := gh.LatestTag(requirement.Src)
-		latestRequirements = append(latestRequirements, ansible.Requirement{
-			Src:     requirement.Src,
-			Version: latest,
-		})
-	}
-
-	latestRequirements.SaveToFile("latest.yml")
+	reqs.Update().SaveToFile("latest.yml")
 }

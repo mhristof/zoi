@@ -3,6 +3,7 @@ package ansible
 import (
 	"io/ioutil"
 
+	"github.com/mhristof/zoi/github"
 	"gopkg.in/yaml.v2"
 )
 
@@ -31,4 +32,18 @@ func (r *Requirements) SaveToFile(path string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (r *Requirements) Update() *Requirements {
+	gh := github.New()
+
+	var latestRequirements Requirements
+	for _, requirement := range *r {
+		latest := gh.LatestTag(requirement.Src)
+		latestRequirements = append(latestRequirements, Requirement{
+			Src:     requirement.Src,
+			Version: latest,
+		})
+	}
+	return &latestRequirements
 }
