@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 
 	"github.com/mhristof/zoi/github"
-	log "github.com/sirupsen/logrus"
+	"github.com/mhristof/zoi/log"
 	"gopkg.in/yaml.v2"
 )
 

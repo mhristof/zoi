@@ -2,14 +2,14 @@ package github
 
 import (
 	"context"
-	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/mhristof/zoi/log"
 
 	"github.com/google/go-github/github"
 	"github.com/hashicorp/go-version"
@@ -78,18 +78,18 @@ func extractUserRepoFromSrc(src string) (string, string) {
 		"src": src,
 	}).Debug("Extracting repo")
 
+	url, err := url.Parse(src)
+	if strings.HasPrefix(src, "https://") && err == nil {
+		// this is your normal github url
+		// https://github.com/user/repo
+		urlParts := strings.Split(url.Path, "/")
+		return urlParts[1], urlParts[2]
+	}
+
 	parts := strings.Split(src, ".")
 	if len(parts) == 2 {
 		// this is a 'user.role' source
 		return parts[0], parts[1]
-	}
-
-	url, err := url.Parse(src)
-	if err == nil {
-		// this is your normal github url
-		// https://github.com/user/repo
-		urlParts := strings.Split(url.Path, "/")
-		return urlParts[0], urlParts[1]
 	}
 
 	log.WithFields(log.Fields{
@@ -99,14 +99,15 @@ func extractUserRepoFromSrc(src string) (string, string) {
 }
 
 func (g GitHub) LatestTag(src string) string {
+	log.WithFields(log.Fields{
+		"src": src,
+	}).Debug("Retrieving tags")
 	tags, err := g.Tags(extractUserRepoFromSrc(src))
 	if err != nil {
 		panic(err)
 	}
 
 	sort.Sort(ByVersionDesc(tags))
-
-	fmt.Println("source: ", src)
 	return *tags[0].Name
 }
 

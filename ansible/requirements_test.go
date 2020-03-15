@@ -1,9 +1,15 @@
-package main
+package ansible
+
+//
+// requirements_test.go
+// Copyright (C) 2020 mhristof <mhristof@Mikes-MBP>
+//
+// Distributed under terms of the MIT license.
+//
 
 import (
 	"testing"
 
-	"github.com/mhristof/zoi/ansible"
 	"github.com/mhristof/zoi/github"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,27 +17,27 @@ import (
 func TestLatestTag(t *testing.T) {
 	var cases = []struct {
 		name     string
-		in       ansible.Requirement
-		expected ansible.Requirement
+		in       Requirement
+		expected Requirement
 	}{
 		{
 			"unset version",
-			ansible.Requirement{
+			Requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "",
 			},
-			ansible.Requirement{
+			Requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.2.1",
 			},
 		},
 		{
 			"outdated version",
-			ansible.Requirement{
+			Requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.0.0",
 			},
-			ansible.Requirement{
+			Requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.2.1",
 			},

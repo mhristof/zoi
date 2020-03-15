@@ -14,6 +14,7 @@ var (
 		Short: "Update the requirements file to the latest versions",
 		Long:  "",
 		Run: func(cmd *cobra.Command, args []string) {
+			Verbose(cmd)
 			reqFile, err := cmd.Flags().GetString("requirements")
 			if err != nil {
 				log.Panic(err)
