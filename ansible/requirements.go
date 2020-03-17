@@ -29,13 +29,31 @@ type RoleRequirement struct {
 	Version string `yaml:"version,omitempty"`
 }
 
-func (r *RoleRequirement) toRequirement() Requirement {
+func (r *RoleRequirement) toRequirement() *Requirement {
+	log.WithFields(log.Fields{
+		"r": fmt.Sprintf("%+v", *r),
+	}).Debug("Converting to Requirement{}")
+
 	req := Requirement{}
 
 	parts := strings.Split(r.Role, ".")
 	req.Src = fmt.Sprintf("https://github.com/%s/ansible-role-%s", parts[0], parts[1])
 	req.Version = r.Version
-	return req
+	return &req
+}
+
+type SrcRequirement struct {
+	Src     string `yaml:"src"`
+	Version string `yaml:"version,omitempty"`
+}
+
+func (r *SrcRequirement) toRequirement() *Requirement {
+	req := Requirement{}
+
+	parts := strings.Split(r.Src, ".")
+	req.Src = fmt.Sprintf("https://github.com/%s/ansible-role-%s", parts[0], parts[1])
+	req.Version = r.Version
+	return &req
 }
 
 func (r *Requirements) LoadFromFile(path string) {
@@ -61,15 +79,26 @@ func (r *Requirements) LoadFromFile(path string) {
 			panic(err)
 		}
 
-		var roleReq RoleRequirement
-		var req Requirement
-		err = json.Unmarshal(itemJSON, &roleReq)
-		if err == nil {
-			req = roleReq.toRequirement()
-		}
-
-		*r = append(*r, req)
+		req := convertAnythingToRequirement(itemJSON)
+		*r = append(*r, *req)
 	}
+}
+
+func convertAnythingToRequirement(in []byte) *Requirement {
+	var roleReq RoleRequirement
+	err := json.Unmarshal(in, &roleReq)
+	// dont forget to import "encoding/json"
+	if err == nil && roleReq.Role != "" {
+		return roleReq.toRequirement()
+	}
+
+	var srcReq SrcRequirement
+	err = json.Unmarshal(in, &srcReq)
+	if err == nil {
+		return srcReq.toRequirement()
+	}
+
+	return nil
 }
 
 func (r *Requirements) SaveToFile(path string) {
