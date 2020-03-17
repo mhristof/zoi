@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -89,7 +90,7 @@ func extractUserRepoFromSrc(src string) (string, string) {
 	parts := strings.Split(src, ".")
 	if len(parts) == 2 {
 		// this is a 'user.role' source
-		return parts[0], parts[1]
+		return parts[0], fmt.Sprintf("ansible-role-%s", parts[1])
 	}
 
 	log.WithFields(log.Fields{
