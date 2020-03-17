@@ -109,7 +109,53 @@ func (g GitHub) LatestTag(src string) string {
 	}
 
 	sort.Sort(ByVersionDesc(tags))
+	if len(tags) == 0 {
+		return ""
+	}
 	return *tags[0].Name
+}
+
+func (g GitHub) LatestBranchCommit(repo string) string {
+	log.WithFields(log.Fields{
+		"repo": repo,
+	}).Debug("Retrieving latest commit ids")
+
+	commits := g.Commits(extractUserRepoFromSrc(repo))
+	sort.Sort(ByCommitTimeDesc(commits))
+
+	return *commits[0].SHA
+}
+
+type ByCommitTimeDesc []*github.RepositoryCommit
+
+func (a ByCommitTimeDesc) Len() int      { return len(a) }
+func (a ByCommitTimeDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByCommitTimeDesc) Less(i, j int) bool {
+	return a[i].Commit.Author.Date.After(*a[j].Commit.Author.Date)
+}
+
+func (g GitHub) Commits(owner, repo string) []*github.RepositoryCommit {
+	log.WithFields(log.Fields{
+		"owner": owner,
+		"repo":  repo,
+	}).Debug("Retrieving all commits")
+
+	var allCommits []*github.RepositoryCommit
+
+	opts := github.CommitsListOptions{}
+
+	for {
+		commits, resp, err := g.client.Repositories.ListCommits(g.ctx, owner, repo, &opts)
+		if err != nil {
+			return nil
+		}
+		allCommits = append(allCommits, commits...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+	return allCommits
 }
 
 type ByVersionDesc []*github.RepositoryTag

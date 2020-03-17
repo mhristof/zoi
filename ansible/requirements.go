@@ -121,6 +121,9 @@ func (r *Requirements) Update() *Requirements {
 			"requirement": requirement,
 		}).Debug("Handling requirement")
 		latest := gh.LatestTag(requirement.Src)
+		if latest == "" {
+			latest = gh.LatestBranchCommit(requirement.Src)
+		}
 		latestRequirements = append(latestRequirements, Requirement{
 			Src:     requirement.Src,
 			Version: latest,
