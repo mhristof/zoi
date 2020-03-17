@@ -11,12 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// type GenericReqiurement struct {
-// 	data [string]interface{}
-// }
-
-// type GenericRequirements []GenericReqiurement
-
 type Requirement struct {
 	Src     string `yaml:"src,omitempty"`
 	Version string `yaml:"version,omitempty"`
@@ -50,8 +44,13 @@ type SrcRequirement struct {
 func (r *SrcRequirement) toRequirement() *Requirement {
 	req := Requirement{}
 
-	parts := strings.Split(r.Src, ".")
-	req.Src = fmt.Sprintf("https://github.com/%s/ansible-role-%s", parts[0], parts[1])
+	if strings.HasPrefix(r.Src, "https://") {
+		req.Src = strings.TrimSuffix(r.Src, ".git")
+	} else {
+		parts := strings.Split(r.Src, ".")
+		req.Src = fmt.Sprintf("https://github.com/%s/ansible-role-%s", parts[0], parts[1])
+	}
+
 	req.Version = r.Version
 	return &req
 }
