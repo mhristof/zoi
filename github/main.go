@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mhristof/zoi/ansible/galaxy"
 	"github.com/mhristof/zoi/log"
 
 	"github.com/google/go-github/github"
@@ -90,14 +90,8 @@ func extractUserRepoFromSrc(src string) (string, string) {
 	parts := strings.Split(src, ".")
 	if len(parts) == 2 {
 		// this is a 'user.role' source
-		role := parts[1]
-		if !strings.HasPrefix(role, "ansible-role-") {
-			log.WithFields(log.Fields{
-				"role": role,
-			}).Debug("Adding ansible-role- prefix")
-			role = fmt.Sprintf("ansible-role-%s", role)
-		}
-		return parts[0], role
+		_, user, role := galaxy.FindRoleURL(parts[0], parts[1])
+		return user, role
 	}
 
 	log.WithFields(log.Fields{
