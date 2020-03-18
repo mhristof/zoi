@@ -91,7 +91,10 @@ func extractUserRepoFromSrc(src string) (string, string) {
 	if len(parts) == 2 {
 		// this is a 'user.role' source
 		role := parts[1]
-		if strings.HasPrefix(role, "ansible-role-") {
+		if !strings.HasPrefix(role, "ansible-role-") {
+			log.WithFields(log.Fields{
+				"role": role,
+			}).Debug("Adding ansible-role- prefix")
 			role = fmt.Sprintf("ansible-role-%s", role)
 		}
 		return parts[0], role

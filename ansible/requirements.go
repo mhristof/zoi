@@ -48,7 +48,14 @@ func (r *SrcRequirement) toRequirement() *Requirement {
 		req.Src = strings.TrimSuffix(r.Src, ".git")
 	} else {
 		parts := strings.Split(r.Src, ".")
-		req.Src = fmt.Sprintf("https://github.com/%s/ansible-role-%s", parts[0], parts[1])
+		role := parts[1]
+		if !strings.HasPrefix(role, "ansible-role-") {
+			log.WithFields(log.Fields{
+				"role": role,
+			}).Debug("Adding ansible-role- prefix")
+			role = fmt.Sprintf("ansible-role-%s", role)
+		}
+		req.Src = fmt.Sprintf("https://github.com/%s/%s", parts[0], role)
 	}
 
 	req.Version = r.Version
