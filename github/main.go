@@ -165,12 +165,12 @@ func (a ByVersionDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByVersionDesc) Less(i, j int) bool {
 	v1, err := version.NewVersion(*a[i].Name)
 	if err != nil {
-		panic(err)
+		return false
 	}
 
 	v2, err := version.NewVersion(*a[j].Name)
 	if err != nil {
-		panic(err)
+		return true
 	}
 
 	return v1.GreaterThan(v2)
