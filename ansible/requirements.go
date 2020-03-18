@@ -60,6 +60,7 @@ func githubPreffix(user, role string) string {
 	prefixes := []string{
 		"ansible-role-",
 		"ansible-",
+		"ansible_",
 		"",
 	}
 
