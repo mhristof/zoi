@@ -90,7 +90,11 @@ func extractUserRepoFromSrc(src string) (string, string) {
 	parts := strings.Split(src, ".")
 	if len(parts) == 2 {
 		// this is a 'user.role' source
-		return parts[0], fmt.Sprintf("ansible-role-%s", parts[1])
+		role := parts[1]
+		if strings.HasPrefix(role, "ansible-role-") {
+			role = fmt.Sprintf("ansible-role-%s", role)
+		}
+		return parts[0], role
 	}
 
 	log.WithFields(log.Fields{
