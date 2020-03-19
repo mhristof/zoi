@@ -41,10 +41,10 @@ func (r *RoleRequirement) toRequirement() *Requirement {
 		req.Src = r.Src
 	} else if r.Role != "" {
 		split := strings.Split(r.Role, ".")
-		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
+		req.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
 	} else if r.Name != "" {
 		split := strings.Split(r.Name, ".")
-		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
+		req.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
 	}
 
 	req.Src = strings.TrimSuffix(req.Src, ".git")

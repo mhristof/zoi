@@ -63,6 +63,11 @@ type AnsibleGalaxyRole struct {
 }
 
 func FindRoleURL(user, role string) (string, string, string) {
+	log.WithFields(log.Fields{
+		"user": user,
+		"role": role,
+	}).Debug("Querying ansible galaxy")
+
 	url := fmt.Sprintf("https://galaxy.ansible.com/api/v1/roles/?owner__username=%s&name=%s", user, role)
 	resp, err := http.Get(url)
 	if err != nil {
