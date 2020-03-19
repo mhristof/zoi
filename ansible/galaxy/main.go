@@ -63,12 +63,14 @@ type AnsibleGalaxyRole struct {
 }
 
 func FindRoleURL(user, role string) (string, string, string) {
+	url := fmt.Sprintf("https://galaxy.ansible.com/api/v1/roles/?owner__username=%s&name=%s", user, role)
+
 	log.WithFields(log.Fields{
 		"user": user,
 		"role": role,
+		"url":  url,
 	}).Debug("Querying ansible galaxy")
 
-	url := fmt.Sprintf("https://galaxy.ansible.com/api/v1/roles/?owner__username=%s&name=%s", user, role)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -99,7 +101,8 @@ func FindRoleURL(user, role string) (string, string, string) {
 			"role":  role,
 			"url":   url,
 			"count": gResp.Count,
-		}).Panic("Incorrect amount of ansible galaxy roles found")
+		}).Warning("Incorrect amount of ansible galaxy roles found")
+		return "", "", ""
 	}
 
 	gRole := gResp.Results[0]
@@ -109,5 +112,10 @@ func FindRoleURL(user, role string) (string, string, string) {
 		gRole.GithubUser,
 		gRole.GithubRepo,
 	}, "/")
+
+	log.WithFields(log.Fields{
+		"ret": ret,
+	}).Debug("Found role")
+
 	return ret, gRole.GithubUser, gRole.GithubRepo
 }

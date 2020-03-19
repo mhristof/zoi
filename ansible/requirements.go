@@ -47,6 +47,11 @@ func (r *RoleRequirement) toRequirement() *Requirement {
 		req.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
 	}
 
+	if req.Src == "" {
+		return nil
+	}
+
+	req.Src = strings.TrimPrefix(req.Src, "git+")
 	req.Src = strings.TrimSuffix(req.Src, ".git")
 	req.Version = r.Version
 	return &req
@@ -64,6 +69,7 @@ func (r *SrcRequirement) toRequirement() *Requirement {
 
 	req := Requirement{}
 
+	r.Src = strings.TrimPrefix(r.Src, "git+")
 	if strings.HasPrefix(r.Src, "https://") {
 		req.Src = strings.TrimSuffix(r.Src, ".git")
 	} else {
@@ -73,6 +79,9 @@ func (r *SrcRequirement) toRequirement() *Requirement {
 		}).Debug("Finding role url")
 
 		req.Src, _, _ = galaxy.FindRoleURL(parts[0], parts[1])
+	}
+	if req.Src == "" {
+		return nil
 	}
 
 	req.Version = r.Version
@@ -125,6 +134,9 @@ func (r *Requirements) LoadFromFile(path string) {
 		}
 
 		req := convertAnythingToRequirement(itemJSON)
+		if req == nil {
+			continue
+		}
 		*r = append(*r, *req)
 	}
 }
