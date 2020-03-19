@@ -20,18 +20,35 @@ type Requirement struct {
 type Requirements []Requirement
 
 type RoleRequirement struct {
-	Role    string `yaml:"role"`
+	Role    string `yaml:"role,omitempty"`
 	Version string `yaml:"version,omitempty"`
+	Name    string `yaml:"name,omitempty"`
+}
+
+type RoleListRequirement struct {
+	Role map[string]Requirement
 }
 
 func (r *RoleRequirement) toRequirement() *Requirement {
 	log.WithFields(log.Fields{
 		"r": fmt.Sprintf("%+v", *r),
-	}).Debug("Converting to Requirement{}")
+	}).Debug("Converting from RoleRequirement{}")
 
 	req := Requirement{}
 
-	parts := strings.Split(r.Role, ".")
+	role := r.Role
+	if role == "" && r.Name != "" {
+		role = r.Name
+	}
+
+	if role == "" {
+		log.WithFields(log.Fields{
+			"r":    fmt.Sprintf("%+v", *r),
+			"role": role,
+		}).Panic("Error while retrieing role")
+	}
+
+	parts := strings.Split(role, ".")
 	req.Src = fmt.Sprintf("https://github.com/%s/ansible-role-%s", parts[0], parts[1])
 	req.Version = r.Version
 	return &req
@@ -45,7 +62,7 @@ type SrcRequirement struct {
 func (r *SrcRequirement) toRequirement() *Requirement {
 	log.WithFields(log.Fields{
 		"src": r.Src,
-	}).Debug("Converting to requirements")
+	}).Debug("Converting from SrcRequirement{}")
 
 	req := Requirement{}
 
@@ -68,21 +85,55 @@ func githubPreffix(user, role string) string {
 	return ""
 }
 
+func loadRequirementsYAML(data []byte) []interface{} {
+	var iface []interface{}
+	err := yaml.Unmarshal(data, &iface)
+	if err == nil {
+		// yaml file is a lsit of requirements
+		return iface
+	}
+
+	var rolesIface map[string]interface{}
+	err = yaml.Unmarshal(data, &rolesIface)
+	if err == nil {
+		// yaml file is probably a dictionary with the requirements being under
+		// "role" key
+		// dont forget to import "encoding/json"
+
+		// dont forget to import "encoding/json"
+		rolesIfaceJSON, err := json.MarshalIndent(rolesIface, "", "    ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(string(rolesIfaceJSON))
+
+		return rolesIface["roles"].([]interface{})
+	}
+
+	log.Panic("Error, i dont know how to handle this requirements file")
+	return nil
+}
+
 func (r *Requirements) LoadFromFile(path string) {
 	log.WithFields(log.Fields{
 		"path": path,
 	}).Debug("Loading requirements file")
 
 	requirementsData, err := ioutil.ReadFile(path)
-
-	var iface []interface{}
-	err = yaml.Unmarshal(requirementsData, &iface)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"path": path,
-			"err":  err,
-		}).Error("Error while loading yaml file")
+		}).Panic("Error while reading file")
 	}
+
+	iface := loadRequirementsYAML(requirementsData)
+
+	// dont forget to import "encoding/json"
+	ifaceJSON, err := json.MarshalIndent(iface, "", "    ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(ifaceJSON))
 
 	for _, item := range iface {
 		fmt.Println(fmt.Sprintf("%+v", item))
@@ -99,8 +150,7 @@ func (r *Requirements) LoadFromFile(path string) {
 func convertAnythingToRequirement(in []byte) *Requirement {
 	var roleReq RoleRequirement
 	err := json.Unmarshal(in, &roleReq)
-	// dont forget to import "encoding/json"
-	if err == nil && roleReq.Role != "" {
+	if err == nil && (roleReq.Role != "" || roleReq.Name != "") {
 		return roleReq.toRequirement()
 	}
 
