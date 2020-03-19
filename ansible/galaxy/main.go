@@ -99,7 +99,7 @@ func FindRoleURL(user, role string) (string, string, string) {
 			"role":  role,
 			"url":   url,
 			"count": gResp.Count,
-		}).Panic("Found more than 1 roles, im confused")
+		}).Panic("Incorrect amount of ansible galaxy roles found")
 	}
 
 	gRole := gResp.Results[0]
