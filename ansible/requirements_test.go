@@ -1,12 +1,5 @@
 package ansible
 
-//
-// requirements_test.go
-// Copyright (C) 2020 mhristof <mhristof@Mikes-MBP>
-//
-// Distributed under terms of the MIT license.
-//
-
 import (
 	"testing"
 
