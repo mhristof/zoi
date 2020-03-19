@@ -20,6 +20,7 @@ type Requirement struct {
 type Requirements []Requirement
 
 type RoleRequirement struct {
+	Src     string `taml:"role,omitempty"`
 	Role    string `yaml:"role,omitempty"`
 	Version string `yaml:"version,omitempty"`
 	Name    string `yaml:"name,omitempty"`
@@ -36,20 +37,17 @@ func (r *RoleRequirement) toRequirement() *Requirement {
 
 	req := Requirement{}
 
-	role := r.Role
-	if role == "" && r.Name != "" {
-		role = r.Name
+	if r.Src != "" {
+		req.Src = r.Src
+	} else if r.Role != "" {
+		split := strings.Split(r.Role, ".")
+		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
+	} else if r.Name != "" {
+		split := strings.Split(r.Name, ".")
+		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
 	}
 
-	if role == "" {
-		log.WithFields(log.Fields{
-			"r":    fmt.Sprintf("%+v", *r),
-			"role": role,
-		}).Panic("Error while retrieing role")
-	}
-
-	parts := strings.Split(role, ".")
-	req.Src = fmt.Sprintf("https://github.com/%s/ansible-role-%s", parts[0], parts[1])
+	req.Src = strings.TrimSuffix(req.Src, ".git")
 	req.Version = r.Version
 	return &req
 }
@@ -98,15 +96,6 @@ func loadRequirementsYAML(data []byte) []interface{} {
 	if err == nil {
 		// yaml file is probably a dictionary with the requirements being under
 		// "role" key
-		// dont forget to import "encoding/json"
-
-		// dont forget to import "encoding/json"
-		rolesIfaceJSON, err := json.MarshalIndent(rolesIface, "", "    ")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(string(rolesIfaceJSON))
-
 		return rolesIface["roles"].([]interface{})
 	}
 
@@ -127,13 +116,6 @@ func (r *Requirements) LoadFromFile(path string) {
 	}
 
 	iface := loadRequirementsYAML(requirementsData)
-
-	// dont forget to import "encoding/json"
-	ifaceJSON, err := json.MarshalIndent(iface, "", "    ")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(ifaceJSON))
 
 	for _, item := range iface {
 		fmt.Println(fmt.Sprintf("%+v", item))
