@@ -28,6 +28,13 @@ func TestFindRoleURL(t *testing.T) {
 			expUser: "",
 			expRepo: "",
 		},
+		{
+			user:    "abessifi",
+			role:    "java",
+			expURL:  "https://github.com/abessifi/ansible-java",
+			expUser: "abessifi",
+			expRepo: "ansible-java",
+		},
 	}
 
 	for _, tt := range cases {
