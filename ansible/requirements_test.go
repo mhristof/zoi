@@ -126,7 +126,7 @@ func TestUpdate(t *testing.T) {
 			t.Parallel()
 			t.Log(tt.name)
 			var r Requirements
-			r.LoadBytes([]byte(tt.yaml))
+			r.loadBytes([]byte(tt.yaml))
 			r = *r.Update()
 			if tt.emptyRes {
 				assert.Equal(t, 0, len(r))
