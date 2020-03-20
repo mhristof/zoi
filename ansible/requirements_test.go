@@ -138,7 +138,7 @@ func TestUpdate(t *testing.T) {
 
 }
 
-func TestsanitiseGitURL(t *testing.T) {
+func TestSanitiseGitURL(t *testing.T) {
 	var cases = []struct {
 		in  string
 		out string
