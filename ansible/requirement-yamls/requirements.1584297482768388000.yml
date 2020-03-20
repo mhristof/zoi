@@ -1,0 +1,4 @@
+---
+
+- src: entercloudsuite.consul
+  version: 1.0.1

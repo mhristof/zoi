@@ -1,0 +1,7 @@
+---
+
+- src: calvinbui.ansible_apt
+  version: 1.0.0
+
+- src: calvinbui.ansible_mongodb
+  version: '1.0.0'
