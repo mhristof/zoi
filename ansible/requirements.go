@@ -13,81 +13,50 @@ import (
 )
 
 type Requirement struct {
-	Src     string `yaml:"src,omitempty"`
-	Version string `yaml:"version,omitempty"`
-}
-
-type Requirements []Requirement
-
-type RoleRequirement struct {
 	Src     string `taml:"role,omitempty"`
 	Role    string `yaml:"role,omitempty"`
 	Version string `yaml:"version,omitempty"`
 	Name    string `yaml:"name,omitempty"`
 }
 
+type Requirements []Requirement
+
 type RoleListRequirement struct {
 	Role map[string]Requirement
 }
 
-func (r *RoleRequirement) toRequirement() *Requirement {
+func (r *Requirement) updateSrc() {
 	log.WithFields(log.Fields{
 		"r": fmt.Sprintf("%+v", *r),
-	}).Debug("Converting from RoleRequirement{}")
+	}).Debug("Updating requirement fields")
 
 	req := Requirement{}
 
 	if r.Src != "" {
-		req.Src = r.Src
-	} else if r.Role != "" {
+		r.Src = sanitiseGitURL(r.Src)
+		return
+	}
+
+	if r.Role != "" {
 		split := strings.Split(r.Role, ".")
-		req.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
+		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
 	} else if r.Name != "" {
 		split := strings.Split(r.Name, ".")
-		req.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
+		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
 	}
 
 	if req.Src == "" {
-		return nil
+		return
 	}
 
-	req.Src = strings.TrimPrefix(req.Src, "git+")
-	req.Src = strings.TrimSuffix(req.Src, ".git")
-	req.Version = r.Version
-	return &req
+	r.Src = sanitiseGitURL(r.Src)
 }
 
-type SrcRequirement struct {
-	Src     string `yaml:"src"`
-	Version string `yaml:"version,omitempty"`
+func sanitiseGitURL(url string) string {
+	return strings.TrimPrefix(
+		strings.TrimSuffix(url, ".git"),
+		"git+")
 }
-
-func (r *SrcRequirement) toRequirement() *Requirement {
-	log.WithFields(log.Fields{
-		"src": r.Src,
-	}).Debug("Converting from SrcRequirement{}")
-
-	req := Requirement{}
-
-	r.Src = strings.TrimPrefix(r.Src, "git+")
-	if strings.HasPrefix(r.Src, "https://") {
-		req.Src = strings.TrimSuffix(r.Src, ".git")
-	} else {
-		parts := strings.Split(r.Src, ".")
-		log.WithFields(log.Fields{
-			"parts": parts,
-		}).Debug("Finding role url")
-
-		req.Src, _, _ = galaxy.FindRoleURL(parts[0], parts[1])
-	}
-	if req.Src == "" {
-		return nil
-	}
-
-	req.Version = r.Version
-	return &req
-}
-
 func githubPreffix(user, role string) string {
 	return ""
 }
@@ -130,34 +99,20 @@ func (r *Requirements) LoadBytes(requirementsData []byte) {
 	iface := loadRequirementsYAML(requirementsData)
 
 	for _, item := range iface {
-		fmt.Println(fmt.Sprintf("%+v", item))
 		itemJSON, err := json.MarshalIndent(item, "", "    ")
 		if err != nil {
 			panic(err)
 		}
 
-		req := convertAnythingToRequirement(itemJSON)
-		if req == nil {
+		var req Requirement
+		err = json.Unmarshal(itemJSON, &req)
+		if err != nil {
 			continue
 		}
-		*r = append(*r, *req)
-	}
-}
 
-func convertAnythingToRequirement(in []byte) *Requirement {
-	var roleReq RoleRequirement
-	err := json.Unmarshal(in, &roleReq)
-	if err == nil && (roleReq.Role != "" || roleReq.Name != "") {
-		return roleReq.toRequirement()
+		req.updateSrc()
+		*r = append(*r, req)
 	}
-
-	var srcReq SrcRequirement
-	err = json.Unmarshal(in, &srcReq)
-	if err == nil {
-		return srcReq.toRequirement()
-	}
-
-	return nil
 }
 
 func (r *Requirements) SaveToFile(path string) {
