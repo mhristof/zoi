@@ -3,6 +3,7 @@ module github.com/mhristof/zoi
 go 1.14
 
 require (
+	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect

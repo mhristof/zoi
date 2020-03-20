@@ -123,7 +123,10 @@ func (r *Requirements) LoadFromFile(path string) {
 			"path": path,
 		}).Panic("Error while reading file")
 	}
+	r.LoadBytes(requirementsData)
+}
 
+func (r *Requirements) LoadBytes(requirementsData []byte) {
 	iface := loadRequirementsYAML(requirementsData)
 
 	for _, item := range iface {
@@ -186,5 +189,6 @@ func (r *Requirements) Update() *Requirements {
 			Version: latest,
 		})
 	}
+
 	return &latestRequirements
 }
