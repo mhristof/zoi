@@ -12,20 +12,17 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Requirement struct {
+type requirement struct {
 	Src     string `taml:"role,omitempty"`
 	Role    string `yaml:"role,omitempty"`
 	Version string `yaml:"version,omitempty"`
 	Name    string `yaml:"name,omitempty"`
 }
 
-type Requirements []Requirement
+// Requirements Holds a list of requirements for a requirements.yml file
+type Requirements []requirement
 
-type RoleListRequirement struct {
-	Role map[string]Requirement
-}
-
-func (r *Requirement) updateSrc() {
+func (r *requirement) updateSrc() {
 	log.WithFields(log.Fields{
 		"r": fmt.Sprintf("%+v", *r),
 	}).Debug("Updating requirement fields")
@@ -50,7 +47,7 @@ func sanitiseGitURL(url string) string {
 	url = strings.TrimPrefix(url, "git+")
 
 	if strings.HasPrefix(url, "http") {
-		strings.TrimSuffix(url, ".git")
+		url = strings.TrimSuffix(url, ".git")
 	}
 	return url
 }
@@ -79,6 +76,7 @@ func loadRequirementsYAML(data []byte) []interface{} {
 	return nil
 }
 
+// LoadFromFile Loads a requirements.yml file into go
 func (r *Requirements) LoadFromFile(path string) {
 	log.WithFields(log.Fields{
 		"path": path,
@@ -90,10 +88,10 @@ func (r *Requirements) LoadFromFile(path string) {
 			"path": path,
 		}).Panic("Error while reading file")
 	}
-	r.LoadBytes(requirementsData)
+	r.loadBytes(requirementsData)
 }
 
-func (r *Requirements) LoadBytes(requirementsData []byte) {
+func (r *Requirements) loadBytes(requirementsData []byte) {
 	iface := loadRequirementsYAML(requirementsData)
 
 	for _, item := range iface {
@@ -102,7 +100,7 @@ func (r *Requirements) LoadBytes(requirementsData []byte) {
 			panic(err)
 		}
 
-		var req Requirement
+		var req requirement
 		err = json.Unmarshal(itemJSON, &req)
 		if err != nil {
 			continue
@@ -116,6 +114,7 @@ func (r *Requirements) LoadBytes(requirementsData []byte) {
 	}
 }
 
+// SaveToFile Dumps a golang representation of requirements to a file
 func (r *Requirements) SaveToFile(path string) {
 	dataOut, err := yaml.Marshal(r)
 	if err != nil {
@@ -128,20 +127,24 @@ func (r *Requirements) SaveToFile(path string) {
 	}
 }
 
+// Update Updates the requirements to the latest and geatest
+// In order of precedence, this fucntion will return
+// 	1. the latest tag
+//  2. the latest commit from master
 func (r *Requirements) Update() *Requirements {
 	gh := github.New()
 
 	var latestRequirements Requirements
-	for _, requirement := range *r {
+	for _, req := range *r {
 		log.WithFields(log.Fields{
-			"requirement": requirement,
+			"req": req,
 		}).Debug("Handling requirement")
-		latest := gh.LatestTag(requirement.Src)
+		latest := gh.LatestTag(req.Src)
 		if latest == "" {
-			latest = gh.LatestBranchCommit(requirement.Src)
+			latest = gh.LatestBranchCommit(req.Src)
 		}
-		latestRequirements = append(latestRequirements, Requirement{
-			Src:     requirement.Src,
+		latestRequirements = append(latestRequirements, requirement{
+			Src:     req.Src,
 			Version: latest,
 		})
 	}

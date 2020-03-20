@@ -17,6 +17,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+// Verbose Increase verbosity
 func Verbose(cmd *cobra.Command) {
 	verbose, err := cmd.Flags().GetBool("verbose")
 	if err != nil {
@@ -31,6 +32,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Increase verbosity")
 }
 
+// Execute The main function for the root command
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

@@ -11,27 +11,27 @@ import (
 func TestLatestTag(t *testing.T) {
 	var cases = []struct {
 		name     string
-		in       Requirement
-		expected Requirement
+		in       requirement
+		expected requirement
 	}{
 		{
 			"unset version",
-			Requirement{
+			requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "",
 			},
-			Requirement{
+			requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.2.1",
 			},
 		},
 		{
 			"outdated version",
-			Requirement{
+			requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.0.0",
 			},
-			Requirement{
+			requirement{
 				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
 				Version: "4.2.1",
 			},
@@ -54,7 +54,7 @@ func TestUpdate(t *testing.T) {
 	var cases = []struct {
 		name     string
 		yaml     string
-		res      Requirement
+		res      requirement
 		emptyRes bool // if set, the return resolt is expected to be empty, len() == 0
 	}{
 		{
@@ -64,7 +64,7 @@ func TestUpdate(t *testing.T) {
 			  name: 'mhristof.cautious-potato'
 			  scm: 'git'
 			`),
-			res: Requirement{
+			res: requirement{
 				Src:     "https://github.com/mhristof/cautious-potato",
 				Version: "1.2",
 			},
@@ -74,7 +74,7 @@ func TestUpdate(t *testing.T) {
 			yaml: heredoc.Doc(`
 			- role: snakeego.docker
 			`),
-			res: Requirement{
+			res: requirement{
 				Src:     "https://github.com/snakeego/ansible-role-docker",
 				Version: "1.3.0",
 			},
@@ -84,7 +84,7 @@ func TestUpdate(t *testing.T) {
 			yaml: heredoc.Doc(`
 			- name: snakeego.docker
 			`),
-			res: Requirement{
+			res: requirement{
 				Src:     "https://github.com/snakeego/ansible-role-docker",
 				Version: "1.3.0",
 			},
@@ -94,7 +94,7 @@ func TestUpdate(t *testing.T) {
 			yaml: heredoc.Doc(`
 			- src: git+https://github.com/danie1cohen/ansible-virtualenv3
 			`),
-			res: Requirement{
+			res: requirement{
 				Src:     "https://github.com/danie1cohen/ansible-virtualenv3",
 				Version: "05488949b99bd74d53b77b086a32572d9af0eaeb",
 			},
@@ -105,7 +105,7 @@ func TestUpdate(t *testing.T) {
 			roles:
 			  - name: snakeego.docker
 			`),
-			res: Requirement{
+			res: requirement{
 				Src:     "https://github.com/snakeego/ansible-role-docker",
 				Version: "1.3.0",
 			},
@@ -115,7 +115,7 @@ func TestUpdate(t *testing.T) {
 			yaml: heredoc.Doc(`
 			- src: williamyeh.oracle-java
 			`),
-			res:      Requirement{},
+			res:      requirement{},
 			emptyRes: true,
 		},
 	}

@@ -10,16 +10,16 @@ import (
 	"github.com/mhristof/zoi/log"
 )
 
-type GalaxyRolesResponse struct {
+type galaxyRolesResponse struct {
 	Count        int
 	Next         string
 	NextLink     string
 	Previous     string
 	PreviousLink string
-	Results      []AnsibleGalaxyRole
+	Results      []ansibleGalaxyRole
 }
 
-type SummaryFields struct {
+type summaryFields struct {
 	ContentType       map[string]interface{}
 	Dependencies      []interface{}
 	Namespace         map[string]interface{}
@@ -31,11 +31,11 @@ type SummaryFields struct {
 	Videos            []interface{}
 }
 
-type AnsibleGalaxyRole struct {
+type ansibleGalaxyRole struct {
 	ID                int    `json:"id"`
 	URL               string `json:"url"`
 	Related           map[string]interface{}
-	SummaryFields     SummaryFields
+	SummaryFields     summaryFields
 	Created           string
 	Modified          string
 	Name              string
@@ -62,6 +62,9 @@ type AnsibleGalaxyRole struct {
 	IssueTrackerURL   string `json:"issue_tracker_url"`
 }
 
+// FindRoleURL Search ansible galaxy for a give user/role combination
+// For found roles, the github URL, the github user and the github repository
+// name will be returned, otherwise its empty strings
 func FindRoleURL(user, role string) (string, string, string) {
 	url := fmt.Sprintf("https://galaxy.ansible.com/api/v1/roles/?owner__username=%s&name=%s", user, role)
 
@@ -84,7 +87,7 @@ func FindRoleURL(user, role string) (string, string, string) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 
-	var gResp GalaxyRolesResponse
+	var gResp galaxyRolesResponse
 	err = json.Unmarshal(body, &gResp)
 	if err != nil {
 		log.WithFields(log.Fields{
