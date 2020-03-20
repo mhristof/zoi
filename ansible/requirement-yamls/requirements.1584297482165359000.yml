@@ -1,0 +1,12 @@
+---
+- src: constrict0r.upgrade
+- src: constrict0r.sourcez
+- src: constrict0r.aptitude
+- src: constrict0r.jsnode
+- src: constrict0r.pyp
+- src: constrict0r.sysconfig
+- src: constrict0r.servicez
+- src: constrict0r.users
+- src: constrict0r.groups
+- src: constrict0r.userconfig
+- src: constrict0r.task

@@ -1,0 +1,3 @@
+---
+- src: chauanhtuandl.repo_epel
+- src: chauanhtuandl.pip
