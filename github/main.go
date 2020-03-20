@@ -106,7 +106,10 @@ func (g GitHub) LatestTag(src string) string {
 	}).Debug("Retrieving tags")
 	tags, err := g.Tags(extractUserRepoFromSrc(src))
 	if err != nil {
-		panic(err)
+		log.WithFields(log.Fields{
+			"src": src,
+		}).Warning("Could not retrieve tags")
+		return ""
 	}
 
 	sort.Sort(ByVersionDesc(tags))
@@ -122,6 +125,13 @@ func (g GitHub) LatestBranchCommit(repo string) string {
 	}).Debug("Retrieving latest commit ids")
 
 	commits := g.Commits(extractUserRepoFromSrc(repo))
+	if commits == nil {
+		log.WithFields(log.Fields{
+			"repo": repo,
+		}).Warning("Could not retrieve commits")
+		return ""
+	}
+
 	sort.Sort(ByCommitTimeDesc(commits))
 
 	return *commits[0].SHA

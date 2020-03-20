@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/mhristof/zoi/ansible"
@@ -21,9 +22,8 @@ var (
 			}
 
 			if _, err := os.Stat(reqFile); os.IsNotExist(err) {
-				log.WithFields(log.Fields{
-					"requirements": reqFile,
-				}).Panic("Error, file not found")
+				fmt.Println(fmt.Sprintf("Error, file %s not found", reqFile))
+				os.Exit(1)
 			}
 
 			reqs := ansible.Requirements{}
