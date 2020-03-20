@@ -124,3 +124,32 @@ func TestUpdate(t *testing.T) {
 	}
 
 }
+
+func TestsanitiseGitURL(t *testing.T) {
+	var cases = []struct {
+		in  string
+		out string
+	}{
+		{
+			in:  "ansiblebit.git",
+			out: "ansiblebit.git",
+		},
+		{
+			in:  "git+https://github.com/mhristof/cautious-potato",
+			out: "https://github.com/mhristof/cautious-potato",
+		},
+		{
+			in:  "https://github.com/mhristof/cautious-potato.git",
+			out: "https://github.com/mhristof/cautious-potato",
+		},
+	}
+
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.in, func(t *testing.T) {
+			t.Parallel()
+			t.Log(tt.in)
+			assert.Equal(t, tt.out, sanitiseGitURL(tt.in))
+		})
+	}
+}

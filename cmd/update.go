@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/mhristof/zoi/ansible"
-	log "github.com/sirupsen/logrus"
+	"github.com/mhristof/zoi/log"
 	"github.com/spf13/cobra"
 )
 

@@ -30,33 +30,31 @@ func (r *Requirement) updateSrc() {
 		"r": fmt.Sprintf("%+v", *r),
 	}).Debug("Updating requirement fields")
 
-	req := Requirement{}
-
-	if r.Src != "" {
-		r.Src = sanitiseGitURL(r.Src)
-		return
-	}
-
-	if r.Role != "" {
-		split := strings.Split(r.Role, ".")
-		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
-	} else if r.Name != "" {
-		split := strings.Split(r.Name, ".")
-		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
-	}
-
-	if req.Src == "" {
-		return
+	if r.Src == "" {
+		if r.Role != "" {
+			r.Src = r.Role
+		} else if r.Name != "" {
+			r.Src = r.Name
+		}
 	}
 
 	r.Src = sanitiseGitURL(r.Src)
+
+	if !strings.HasPrefix(r.Src, "http") {
+		split := strings.Split(r.Src, ".")
+		r.Src, _, _ = galaxy.FindRoleURL(split[0], split[1])
+	}
 }
 
 func sanitiseGitURL(url string) string {
-	return strings.TrimPrefix(
-		strings.TrimSuffix(url, ".git"),
-		"git+")
+	url = strings.TrimPrefix(url, "git+")
+
+	if strings.HasPrefix(url, "http") {
+		strings.TrimSuffix(url, ".git")
+	}
+	return url
 }
+
 func githubPreffix(user, role string) string {
 	return ""
 }
