@@ -1,8 +1,6 @@
 package ansible
 
 import (
-	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/MakeNowJust/heredoc"
