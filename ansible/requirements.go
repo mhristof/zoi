@@ -109,6 +109,9 @@ func (r *Requirements) LoadBytes(requirementsData []byte) {
 		}
 
 		req.updateSrc()
+		if req.Src == "" {
+			continue
+		}
 		*r = append(*r, req)
 	}
 }

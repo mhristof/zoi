@@ -52,9 +52,10 @@ func TestLatestTag(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	var cases = []struct {
-		name string
-		yaml string
-		res  Requirement
+		name     string
+		yaml     string
+		res      Requirement
+		emptyRes bool // if set, the return resolt is expected to be empty, len() == 0
 	}{
 		{
 			name: "role with valid github src, name, scm and version master",
@@ -109,6 +110,14 @@ func TestUpdate(t *testing.T) {
 				Version: "1.3.0",
 			},
 		},
+		{
+			name: "role that doesnt exist in ansible galaxy",
+			yaml: heredoc.Doc(`
+			- src: williamyeh.oracle-java
+			`),
+			res:      Requirement{},
+			emptyRes: true,
+		},
 	}
 
 	for _, tt := range cases {
@@ -119,7 +128,11 @@ func TestUpdate(t *testing.T) {
 			var r Requirements
 			r.LoadBytes([]byte(tt.yaml))
 			r = *r.Update()
-			assert.Equal(t, tt.res, r[0])
+			if tt.emptyRes {
+				assert.Equal(t, 0, len(r))
+			} else {
+				assert.Equal(t, tt.res, r[0])
+			}
 		})
 	}
 
