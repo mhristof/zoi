@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"io/ioutil"
 	"net/url"
 	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 
@@ -15,7 +13,6 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/hashicorp/go-version"
 	"golang.org/x/oauth2"
-	"gopkg.in/yaml.v2"
 )
 
 type GitHub struct {
@@ -31,30 +28,7 @@ func New() *GitHub {
 	return &g
 }
 
-type HubConfig struct {
-	Github []map[string]interface{} `yaml:"github.com"`
-}
-
-func hubToken() (string, error) {
-	var config HubConfig
-	configData, err := ioutil.ReadFile(filepath.Join(os.Getenv("HOME"), ".config/hub"))
-	if err != nil {
-		return "", err
-	}
-	err = yaml.Unmarshal(configData, &config)
-	if err != nil {
-		return "", err
-	}
-
-	return config.Github[0]["oauth_token"].(string), nil
-}
-
 func githubToken() string {
-	token, err := hubToken()
-	if err == nil {
-		return token
-	}
-
 	token, found := os.LookupEnv("GITHUB_TOKEN")
 
 	if found {
