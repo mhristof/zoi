@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/mhristof/zoi/log"
 )
@@ -62,6 +63,35 @@ type ansibleGalaxyRole struct {
 	IssueTrackerURL   string `json:"issue_tracker_url"`
 }
 
+func get(url string) (resp *http.Response, err error) {
+	for i := 0; i < 5; i++ {
+		resp, err = http.Get(url)
+		if resp.StatusCode != 520 {
+			return resp, err
+		}
+		// I think galaxy.ansible.com is rate limiting requests and sometimes
+		// when i run the huge tests i get a 520 back.
+		// <html>
+		// <head>
+		// <title>520 Origin Error</title>
+		// </head>
+		// <body bgcolor=\"white\">
+		// 	<center><h1>520 Origin Error</h1></center>
+		// <hr>
+		// <center>cloudflare-nginx</center>
+		// </body>
+		// </html>
+		log.WithFields(log.Fields{
+			"i":               i,
+			"resp.StatusCode": resp.StatusCode,
+			"url":             url,
+		}).Debug("Got a 520, sleeping it off")
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	return resp, err
+}
+
 // FindRoleURL Search ansible galaxy for a give user/role combination
 // For found roles, the github URL, the github user and the github repository
 // name will be returned, otherwise its empty strings
@@ -74,7 +104,7 @@ func FindRoleURL(user, role string) (string, string, string) {
 		"url":  url,
 	}).Debug("Querying ansible galaxy")
 
-	resp, err := http.Get(url)
+	resp, err := get(url)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"user": user,
@@ -94,6 +124,7 @@ func FindRoleURL(user, role string) (string, string, string) {
 			"user": user,
 			"role": role,
 			"url":  url,
+			"body": string(body),
 			"err":  err,
 		}).Panic("Error while unmarshaling galaxy response")
 	}
@@ -109,6 +140,10 @@ func FindRoleURL(user, role string) (string, string, string) {
 	}
 
 	gRole := gResp.Results[0]
+
+	if gRole.GithubServer == "" {
+		gRole.GithubServer = "https://github.com"
+	}
 
 	ret := strings.Join([]string{
 		gRole.GithubServer,

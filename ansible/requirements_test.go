@@ -17,23 +17,23 @@ func TestLatestTag(t *testing.T) {
 		{
 			"unset version",
 			requirement{
-				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
+				Src:     "https://github.com/mhristof/zoi-ansible-role-jenkins",
 				Version: "",
 			},
 			requirement{
-				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
-				Version: "4.2.1",
+				Src:     "https://github.com/mhristof/zoi-ansible-role-jenkins",
+				Version: "4.3.0",
 			},
 		},
 		{
 			"outdated version",
 			requirement{
-				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
+				Src:     "https://github.com/mhristof/zoi-ansible-role-jenkins",
 				Version: "4.0.0",
 			},
 			requirement{
-				Src:     "https://github.com/geerlingguy/ansible-role-jenkins",
-				Version: "4.2.1",
+				Src:     "https://github.com/mhristof/zoi-ansible-role-jenkins",
+				Version: "4.3.0",
 			},
 		},
 	}
