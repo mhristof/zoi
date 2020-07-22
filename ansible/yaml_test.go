@@ -17,6 +17,7 @@ func TestYAML(t *testing.T) {
 		log.Fatal(err)
 	}
 
+	t.Log("Warning, this will take a while")
 	for _, file := range files {
 		if !strings.HasSuffix(file.Name(), ".yml") {
 			continue

@@ -3,6 +3,7 @@ package galaxy
 import (
 	"testing"
 
+	"github.com/mhristof/zoi/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,15 +38,16 @@ func TestFindRoleURL(t *testing.T) {
 		},
 	}
 
+	log.SetLevel(log.DebugLevel)
 	for _, tt := range cases {
 		tt := tt
 		t.Run(tt.expURL, func(t *testing.T) {
 			t.Parallel()
 			t.Log(tt.expURL)
 			retURL, retUser, retRole := FindRoleURL(tt.user, tt.role)
-			assert.Equal(t, retURL, tt.expURL)
-			assert.Equal(t, retUser, tt.expUser)
-			assert.Equal(t, retRole, tt.expRepo)
+			assert.Equal(t, retURL, tt.expURL, "url")
+			assert.Equal(t, retUser, tt.expUser, "user")
+			assert.Equal(t, retRole, tt.expRepo, "repo")
 		})
 	}
 }

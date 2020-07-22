@@ -7,7 +7,7 @@
 
 - src: geerlingguy.repo-epel
 
-- src: coffeeitworks.ansible_nagios4_server_config
+  # - src: coffeeitworks.ansible_nagios4_server_config
 
-- src: coffeeitworks.ansible_nagios4_checkmk_livestatus
-  version: 1.1.0
+  # - src: coffeeitworks.ansible_nagios4_checkmk_livestatus
+  # version: 1.1.0
