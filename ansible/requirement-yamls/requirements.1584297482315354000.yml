@@ -1,9 +1,0 @@
----
-- src: avnes.ansible-role-conky
-  version: v1.6
-
-- src: avnes.ansible-role-plank
-  version: v1.5
-
-- src: avnes.ansible-role-tint2
-  version: v1.6

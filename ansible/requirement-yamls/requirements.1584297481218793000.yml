@@ -1,5 +1,0 @@
----
-
-- src: clvx.openvpn
-  version: master
-  name: openvpn
