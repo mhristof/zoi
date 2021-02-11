@@ -11,7 +11,7 @@ fast-test:  ## Run fast tests
 	go test ./... -tags fast
 
 test:	## Run all tests
-	go test ./...
+	go test -v ./...
 
 help:           ## Show this help.
 	@grep '.*:.*##' Makefile | grep -v grep  | sort | sed 's/:.* ## /:/g' | column -t -s:
