@@ -9,6 +9,7 @@ import (
 
 	"github.com/coreos/go-semver/semver"
 	"github.com/google/go-github/v33/github"
+	"github.com/mhristof/zoi/log"
 	"golang.org/x/oauth2"
 )
 
@@ -21,10 +22,12 @@ type Url struct {
 }
 
 var (
-	ErrorUrlTooShort     = errors.New("URL too short")
-	ErrorWrongHost       = errors.New("URL host is wrong")
-	ErrorNoReleases      = errors.New("No releases available")
-	ErrorCannotHandleUrl = errors.New("Cannot handle the url")
+	ErrorUrlTooShort      = errors.New("URL too short")
+	ErrorWrongHost        = errors.New("URL host is wrong")
+	ErrorNoReleases       = errors.New("No releases available")
+	ErrorCannotHandleURL  = errors.New("Cannot handle the url")
+	ErrorNoTags           = errors.New("No tags available")
+	ErrorReleaseNotInTags = errors.New("Release string not a tag")
 )
 
 func ParseGitUrl(url string) (*Url, error) {
@@ -69,7 +72,7 @@ func ParseUrl(in string) (*Url, error) {
 		return url, nil
 	}
 
-	return nil, ErrorCannotHandleUrl
+	return nil, ErrorCannotHandleURL
 }
 
 func ParseHttpUrl(url string) (*Url, error) {
@@ -124,11 +127,43 @@ func (u *Url) NextRelease() (string, error) {
 
 	client := github.NewClient(tc)
 
-	opt := &github.ListOptions{}
+	release, err := latestRelease(client, u.Owner, u.Repo)
 
-	releases, _, err := client.Repositories.ListReleases(ctx, u.Owner, u.Repo, opt)
 	if err != nil {
-		panic(err)
+		release, err = latestTag(client, u.Owner, u.Repo, u.Release)
+		if err != nil {
+			return "", ErrorCannotHandleURL
+		}
+	}
+
+	return strings.Replace(u.Url, u.Release, release, -1), nil
+}
+
+func latestTag(client *github.Client, owner, repo, release string) (string, error) {
+	ctx := context.Background()
+	opt := &github.ListOptions{}
+	tags, _, err := client.Repositories.ListTags(ctx, owner, repo, opt)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Panic("Could not retrieve information from server")
+	}
+
+	if len(tags) == 0 {
+		return "", ErrorNoTags
+	}
+
+	latest := tags[0]
+	return *latest.Name, nil
+}
+func latestRelease(client *github.Client, owner, repo string) (string, error) {
+	ctx := context.Background()
+	opt := &github.ListOptions{}
+	releases, _, err := client.Repositories.ListReleases(ctx, owner, repo, opt)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Panic("Could not retrieve information from server")
 	}
 
 	if len(releases) == 0 {
@@ -137,14 +172,15 @@ func (u *Url) NextRelease() (string, error) {
 
 	latest := releases[0]
 	for _, release := range releases {
+		fmt.Println(fmt.Sprintf("release.TagName: %+v", *release.TagName))
+
 		this := semver.New(sanitiseRelease(*release.TagName))
 
 		if semver.New(sanitiseRelease(*latest.TagName)).LessThan(*this) {
 			latest = release
 		}
 	}
-
-	return strings.Replace(u.Url, u.Release, *latest.TagName, -1), nil
+	return *latest.TagName, nil
 }
 
 func sanitiseRelease(tag string) string {
