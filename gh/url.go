@@ -86,21 +86,33 @@ func ParseHttpUrl(url string) (*Url, error) {
 	return &Url{
 		Host:    fmt.Sprintf("%s//%s", parts[0], parts[2]),
 		Owner:   parts[3],
-		Repo:    strings.TrimSuffix(parts[4], ".git"),
+		Repo:    sanitiseRepo(parts[4]),
 		Release: getRelease(parts...),
 		Url:     url,
 	}, nil
 }
 
-func getRelease(parts ...string) string {
-	if len(parts) < 6 {
-		return ""
+func sanitiseRepo(repo string) string {
+	refPos := strings.Index(repo, "?ref")
+	if refPos > 0 {
+		repo = repo[0:refPos]
 	}
 
-	if parts[5] != "releases" && parts[6] != "download" {
-		return ""
+	repo = strings.TrimSuffix(repo, ".git")
+	return repo
+}
+
+func getRelease(parts ...string) string {
+
+	if len(parts) > 7 && parts[5] == "releases" && parts[6] == "download" {
+		return parts[7]
 	}
-	return parts[7]
+
+	if len(parts) == 5 && strings.Contains(parts[4], "ref=") {
+		return strings.Split(parts[4], "=")[1]
+	}
+
+	return ""
 }
 
 func (u *Url) NextRelease() (string, error) {
@@ -113,6 +125,7 @@ func (u *Url) NextRelease() (string, error) {
 	client := github.NewClient(tc)
 
 	opt := &github.ListOptions{}
+
 	releases, _, err := client.Repositories.ListReleases(ctx, u.Owner, u.Repo, opt)
 	if err != nil {
 		panic(err)

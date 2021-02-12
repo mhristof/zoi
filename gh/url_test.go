@@ -2,6 +2,7 @@ package gh
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -55,6 +56,17 @@ func TestParseHttpUrl(t *testing.T) {
 				Owner: "VundleVim",
 				Repo:  "Vundle.vim",
 				Url:   "https://github.com/VundleVim/Vundle.vim.git",
+			},
+		},
+		{
+			name: "https url with ref=",
+			in:   "https://github.com/mhristof/terraform-aws-vpc-1?ref=v0.1.2",
+			out: &Url{
+				Host:    "https://github.com",
+				Owner:   "mhristof",
+				Repo:    "terraform-aws-vpc-1",
+				Url:     "https://github.com/mhristof/terraform-aws-vpc-1?ref=v0.1.2",
+				Release: "v0.1.2",
 			},
 		},
 	}
@@ -124,5 +136,28 @@ func TestNextReleaseUrl(t *testing.T) {
 		next, _ := test.repo.NextRelease()
 		assert.Equal(t, test.out, next, test.name)
 
+	}
+}
+
+func Test(t *testing.T) {
+	var cases = []struct {
+		name string
+		in   []string
+		out  string
+	}{
+		{
+			name: "release download url",
+			in:   strings.Split("https://github.com/mhristof/semver/releases/download/v0.5.0/semver.darwin", "/"),
+			out:  "v0.5.0",
+		},
+		{
+			name: "http url with ref",
+			in:   strings.Split("https://github.com/mhristof/terraform-aws-vpc-1?ref=v0.1.2", "/"),
+			out:  "v0.1.2",
+		},
+	}
+
+	for _, test := range cases {
+		assert.Equal(t, test.out, getRelease(test.in...), test.name)
 	}
 }

@@ -40,6 +40,11 @@ func TestRelease(t *testing.T) {
 			in:   "git clone https://github.com/Homebrew/brew.git ~/.brew",
 			out:  "git clone https://github.com/Homebrew/brew.git ~/.brew",
 		},
+		{
+			name: "https with ?ref=",
+			in:   "https://github.com/mhristof/terraform-aws-vpc-1?ref=v0.1.2",
+			out:  "https://github.com/mhristof/terraform-aws-vpc-1?ref=v2.70.0",
+		},
 	}
 
 	for _, test := range cases {
