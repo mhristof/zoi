@@ -30,11 +30,11 @@ func TestRelease(t *testing.T) {
 			in:   "https://github.com/mhristof/checkov2vim/releases/latest/download/checkov2vim",
 			out:  "https://github.com/mhristof/checkov2vim/releases/latest/download/checkov2vim",
 		},
-		// {
-		// 	name: "github ssh url with ?ref=",
-		// 	in:   "git@github.com:mhristof/semver.git?ref=0.3.2",
-		// 	out:  fmt.Sprintf("git@github.com:mhristof/semver.git?ref=%s", semverLatest),
-		// },
+		{
+			name: "github ssh url with ?ref=",
+			in:   "git@github.com:mhristof/semver.git?ref=v0.3.2",
+			out:  fmt.Sprintf("git@github.com:mhristof/semver.git?ref=v%s", semverLatest),
+		},
 	}
 
 	for _, test := range cases {

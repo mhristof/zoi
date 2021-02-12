@@ -21,9 +21,10 @@ type Url struct {
 }
 
 var (
-	ErrorUrlTooShort = errors.New("URL too short")
-	ErrorWrongHost   = errors.New("URL host is wrong")
-	ErrorNoReleases  = errors.New("No releases available")
+	ErrorUrlTooShort     = errors.New("URL too short")
+	ErrorWrongHost       = errors.New("URL host is wrong")
+	ErrorNoReleases      = errors.New("No releases available")
+	ErrorCannotHandleUrl = errors.New("Cannot handle the url")
 )
 
 func ParseGitUrl(url string) (*Url, error) {
@@ -46,7 +47,7 @@ func ParseGitUrl(url string) (*Url, error) {
 		return nil, ErrorWrongHost
 	}
 
-	ret.Host = host[0]
+	ret.Host = strings.Replace(host[0], "git@", "", -1)
 
 	owner := strings.Split(host[1], "/")
 
@@ -57,7 +58,21 @@ func ParseGitUrl(url string) (*Url, error) {
 	return &ret, nil
 }
 
-func ParseUrl(url string) (*Url, error) {
+func ParseUrl(in string) (*Url, error) {
+	url, err := ParseHttpUrl(in)
+	if err == nil {
+		return url, nil
+	}
+
+	url, err = ParseGitUrl(in)
+	if err == nil {
+		return url, nil
+	}
+
+	return nil, ErrorCannotHandleUrl
+}
+
+func ParseHttpUrl(url string) (*Url, error) {
 	if !strings.HasPrefix(url, "https://github.com") {
 		return nil, ErrorWrongHost
 	}
