@@ -16,7 +16,7 @@ func Release(line string) string {
 
 	for _, parser := range parsers {
 		gURL, err := parser(line)
-		if err == nil {
+		if err == nil && gURL.Release != "" {
 			next, err := gURL.NextRelease()
 			if err != nil {
 				return line

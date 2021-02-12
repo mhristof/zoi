@@ -35,6 +35,11 @@ func TestRelease(t *testing.T) {
 			in:   "git@github.com:mhristof/semver.git?ref=v0.3.2",
 			out:  fmt.Sprintf("git@github.com:mhristof/semver.git?ref=v%s", semverLatest),
 		},
+		{
+			name: "url without version",
+			in:   "git clone https://github.com/Homebrew/brew.git ~/.brew",
+			out:  "git clone https://github.com/Homebrew/brew.git ~/.brew",
+		},
 	}
 
 	for _, test := range cases {
