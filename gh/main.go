@@ -10,13 +10,13 @@ import (
 
 func Release(line string) string {
 
-	var options = []func(string) (*Url, error){
-		releaseGit,
-		releaseHttp,
+	var parsers = []func(string) (*Url, error){
+		parseGit,
+		parseHttp,
 	}
 
-	for _, opt := range options {
-		gURL, err := opt(line)
+	for _, parser := range parsers {
+		gURL, err := parser(line)
 		if err == nil {
 			next, err := gURL.NextRelease()
 			if err != nil {
@@ -30,7 +30,7 @@ func Release(line string) string {
 	return line
 }
 
-func releaseGit(line string) (*Url, error) {
+func parseGit(line string) (*Url, error) {
 	regex := `git@github.com.*ref=[\w\.]*`
 	re := regexp.MustCompile(regex)
 	found := re.Find([]byte(line))
@@ -47,7 +47,7 @@ func releaseGit(line string) (*Url, error) {
 	return gURL, nil
 }
 
-func releaseHttp(line string) (*Url, error) {
+func parseHttp(line string) (*Url, error) {
 	urls := xurls.Relaxed()
 	url := urls.FindString(line)
 
