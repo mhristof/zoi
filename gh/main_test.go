@@ -39,6 +39,5 @@ func TestRelease(t *testing.T) {
 
 	for _, test := range cases {
 		assert.Equal(t, test.out, Release(test.in), test.name)
-
 	}
 }
