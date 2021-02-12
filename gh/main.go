@@ -9,7 +9,6 @@ import (
 )
 
 func Release(line string) string {
-
 	var parsers = []func(string) (*Url, error){
 		parseGit,
 		parseHttp,
@@ -59,10 +58,10 @@ func parseHttp(line string) (*Url, error) {
 		return nil, errors.New("Not a release url")
 	}
 
-	gUrl, err := ParseUrl(url)
+	gURL, err := ParseUrl(url)
 	if err != nil {
 		return nil, err
 	}
 
-	return gUrl, nil
+	return gURL, nil
 }
