@@ -26,6 +26,37 @@ var (
 	ErrorNoReleases  = errors.New("No releases available")
 )
 
+func ParseGitUrl(url string) (*Url, error) {
+	if !strings.HasPrefix(url, "git@github.com") {
+		return nil, ErrorWrongHost
+	}
+
+	var ret = Url{
+		Url: url,
+	}
+	release := strings.Split(url, "=")
+
+	if len(release) == 2 {
+		ret.Release = release[1]
+	}
+
+	host := strings.Split(url, ":")
+
+	if len(host) != 2 {
+		return nil, ErrorWrongHost
+	}
+
+	ret.Host = host[0]
+
+	owner := strings.Split(host[1], "/")
+
+	ret.Owner = owner[0]
+	// remove everything after .git
+	ret.Repo = owner[1][0:strings.Index(owner[1], ".git")]
+
+	return &ret, nil
+}
+
 func ParseUrl(url string) (*Url, error) {
 	if !strings.HasPrefix(url, "https://github.com") {
 		return nil, ErrorWrongHost
@@ -85,7 +116,6 @@ func (u *Url) NextRelease() (string, error) {
 		}
 	}
 
-	//fmt.Println("replacint", u.Url, u.Release, *latest.TagName)
 	return strings.Replace(u.Url, u.Release, *latest.TagName, -1), nil
 }
 

@@ -66,6 +66,40 @@ func TestParseUrl(t *testing.T) {
 	}
 }
 
+func TestParseGitUrl(t *testing.T) {
+	var cases = []struct {
+		name string
+		in   string
+		out  *Url
+		err  error
+	}{
+		{
+			name: "valid github ssh url with ref",
+			in:   "git@github.com:mhristof/semver.git?ref=v1.2.3",
+			out: &Url{
+				Host:    "git@github.com",
+				Owner:   "mhristof",
+				Repo:    "semver",
+				Release: "v1.2.3",
+				Url:     "git@github.com:mhristof/semver.git?ref=v1.2.3",
+			},
+		},
+		{
+			name: "invalid github ssh url",
+			in:   "git@gitlab.com:mhristof/semver.git?ref=v1.2.3",
+			out:  nil,
+			err:  ErrorWrongHost,
+		},
+	}
+
+	for _, test := range cases {
+		url, err := ParseGitUrl(test.in)
+		assert.Equal(t, err, test.err, test.name)
+		assert.Equal(t, test.out, url, test.name)
+
+	}
+}
+
 func TestNextReleaseUrl(t *testing.T) {
 	var cases = []struct {
 		name string
@@ -73,7 +107,7 @@ func TestNextReleaseUrl(t *testing.T) {
 		out  string
 	}{
 		{
-			name: "Kubernetes releases",
+			name: "next remease for mhristof/semver repo",
 			repo: Url{
 				Host:    "https://github.com",
 				Owner:   "mhristof",
