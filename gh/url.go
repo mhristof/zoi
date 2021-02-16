@@ -172,8 +172,6 @@ func latestRelease(client *github.Client, owner, repo string) (string, error) {
 
 	latest := releases[0]
 	for _, release := range releases {
-		fmt.Println(fmt.Sprintf("release.TagName: %+v", *release.TagName))
-
 		this := semver.New(sanitiseRelease(*release.TagName))
 
 		if semver.New(sanitiseRelease(*latest.TagName)).LessThan(*this) {
