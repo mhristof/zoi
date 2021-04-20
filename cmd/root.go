@@ -61,8 +61,26 @@ var rootCmd = &cobra.Command{
 			}).Error("Could not read file")
 		}
 
-		for _, line := range strings.Split(string(lines), "\n") {
-			fmt.Println(gh.Release(line))
+		inplace, err := cmd.Flags().GetBool("inplace")
+		if err != nil {
+			panic(err)
+		}
+
+		out := os.Stderr
+		if inplace {
+			out, err = os.Create(args[0])
+			if err != nil {
+				panic(err)
+			}
+
+			defer out.Close()
+		}
+
+		// lines ends up having one extra line at the end. Im sure there is a
+		// better fix, but meh.
+		llines := strings.Split(string(lines), "\n")
+		for _, line := range llines[0 : len(llines)-1] {
+			fmt.Fprintf(out, "%s\n", gh.Release(line))
 		}
 	},
 }
@@ -78,7 +96,9 @@ func Verbose(cmd *cobra.Command) {
 		log.SetLevel(log.DebugLevel)
 	}
 }
+
 func init() {
+	rootCmd.PersistentFlags().BoolP("inplace", "i", false, "Inplace replacement of the target file")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Increase verbosity")
 }
 
