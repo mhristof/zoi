@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/mhristof/zoi/log"
 	"mvdan.cc/xurls/v2"
 )
 
@@ -21,6 +22,12 @@ func Release(line string) string {
 			if err != nil {
 				return line
 			}
+
+			log.WithFields(log.Fields{
+				"line":     line,
+				"gURL.Url": gURL.Url,
+				"next":     next,
+			}).Debug("Next release")
 
 			return strings.Replace(line, gURL.Url, next, -1)
 		}

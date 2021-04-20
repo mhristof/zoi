@@ -136,7 +136,21 @@ func (u *Url) NextRelease() (string, error) {
 		}
 	}
 
-	return strings.Replace(u.Url, u.Release, release, -1), nil
+	log.WithFields(log.Fields{
+		"u.Url":     u.Url,
+		"u.Release": u.Release,
+		"release":   release,
+	}).Debug("New release")
+
+	return strings.ReplaceAll(
+		strings.ReplaceAll(
+			// replace all versions in string
+			u.Url, u.Release, release,
+		),
+		// replace version that might exist without the v prefix
+		strings.TrimPrefix(u.Release, "v"),
+		strings.TrimPrefix(release, "v"),
+	), nil
 }
 
 func latestTag(client *github.Client, owner, repo, release string) (string, error) {

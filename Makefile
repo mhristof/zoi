@@ -7,6 +7,10 @@ SHELL := bash
 .ONESHELL:
 
 
+
+./bin/zoi.darwin: $(shell find ./ -name '*.go')
+	go build -o $@ main.go
+
 fast-test:  ## Run fast tests
 	go test ./... -tags fast
 

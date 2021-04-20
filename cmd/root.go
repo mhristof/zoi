@@ -64,7 +64,6 @@ var rootCmd = &cobra.Command{
 		for _, line := range strings.Split(string(lines), "\n") {
 			fmt.Println(gh.Release(line))
 		}
-
 	},
 }
 

@@ -120,7 +120,7 @@ func TestNextReleaseUrl(t *testing.T) {
 		out  string
 	}{
 		{
-			name: "next remease for mhristof/semver repo",
+			name: "next release for mhristof/semver repo",
 			repo: Url{
 				Host:    "https://github.com",
 				Owner:   "mhristof",
@@ -129,6 +129,17 @@ func TestNextReleaseUrl(t *testing.T) {
 				Url:     "v0.1.0",
 			},
 			out: fmt.Sprintf("v%s", semverLatest),
+		},
+		{
+			name: "binary containing the version",
+			repo: Url{
+				Host:    "https://github.com",
+				Owner:   "mhristof",
+				Repo:    "zoi-cli-cli",
+				Release: "v1.7.0",
+				Url:     "https://github.com/mhristof/zoi-cli-cli/releases/download/v1.9.2-pre0/gh_1.7.0_$(GH_OS)_amd64.tar.gz",
+			},
+			out: "https://github.com/mhristof/zoi-cli-cli/releases/download/v1.9.2-pre0/gh_1.9.2-pre0_$(GH_OS)_amd64.tar.gz",
 		},
 	}
 
