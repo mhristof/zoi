@@ -137,9 +137,9 @@ func TestNextReleaseUrl(t *testing.T) {
 				Owner:   "mhristof",
 				Repo:    "zoi-cli-cli",
 				Release: "v1.7.0",
-				Url:     "https://github.com/mhristof/zoi-cli-cli/releases/download/v1.9.2-pre0/gh_1.7.0_$(GH_OS)_amd64.tar.gz",
+				Url:     "https://github.com/mhristof/zoi-cli-cli/releases/download/v1.7.0/gh_1.7.0_$(GH_OS)_amd64.tar.gz",
 			},
-			out: "https://github.com/mhristof/zoi-cli-cli/releases/download/v1.9.2-pre0/gh_1.9.2-pre0_$(GH_OS)_amd64.tar.gz",
+			out: "https://github.com/mhristof/zoi-cli-cli/releases/download/v1.9.1/gh_1.9.1_$(GH_OS)_amd64.tar.gz",
 		},
 	}
 
