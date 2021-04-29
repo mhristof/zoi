@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
-	github.com/coreos/go-semver v0.2.0
+	github.com/coreos/go-semver v0.3.0
 	github.com/google/go-github/v33 v33.0.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.0.0
