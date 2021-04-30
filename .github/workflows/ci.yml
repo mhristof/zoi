@@ -19,6 +19,7 @@ jobs:
   help:
     needs:
       - test
+      - build
     runs-on: ubuntu-latest
     steps:
       - name: help
@@ -26,6 +27,7 @@ jobs:
   smoke-test:
     needs:
       - test
+      - build
     runs-on: ubuntu-latest
     steps:
       - name: parse a test file
