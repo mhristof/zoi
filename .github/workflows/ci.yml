@@ -1,0 +1,53 @@
+---
+name: ci
+
+on:
+  - push
+
+env:
+  GITHUB_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make test
+      - name: build
+        run: make
+      - name: smoke-test help
+        run: ./bin/zoi.linux --help
+      - name: smoke-test simple parse
+        run: make simple
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags')
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: "Hi, this is an automated release"
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset (darwin)
+        if: startsWith(github.ref, 'refs/tags')
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bin/zoi.darwin
+          asset_name: zoi.darwin
+          asset_content_type: application/octet-stream
+      - name: Upload Release Asset (linux)
+        if: startsWith(github.ref, 'refs/tags')
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bin/zoi.linux
+          asset_name: zoi.linux
+          asset_content_type: application/octet-stream

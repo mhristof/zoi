@@ -1,3 +1,6 @@
+---
+name: cleanup-branches
+
 on:
   pull_request:
     types:
