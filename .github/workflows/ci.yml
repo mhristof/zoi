@@ -20,7 +20,7 @@ jobs:
       - name: smoke-test simple parse
         run: make simple
       - name: Create Release
-        if: if contains('refs/tags', github.ref)
+        if: startsWith(github.ref, 'refs/tags')
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -32,7 +32,7 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload Release Asset (darwin)
-        if: if contains('refs/tags', github.ref)
+        if: startsWith(github.ref, 'refs/tags')
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,7 +42,7 @@ jobs:
           asset_name: zoi.darwin
           asset_content_type: application/octet-stream
       - name: Upload Release Asset (linux)
-        if: if contains('refs/tags', github.ref)
+        if: startsWith(github.ref, 'refs/tags')
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
