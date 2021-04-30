@@ -20,6 +20,10 @@ fast-test:  ## Run fast tests
 test:	## Run all tests
 	go test -v ./...
 
+.PHONY: simple
+simple: ./bin/zoi.darwin
+	./bin/zoi.darwin ./tests/simple.py | python | grep '^https'
+
 .PHONY: help
 help:           ## Show this help.
 	@grep '.*:.*##' Makefile | grep -v grep  | sort | sed 's/:.* ## /:/g' | column -t -s:
