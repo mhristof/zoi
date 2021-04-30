@@ -1,0 +1,34 @@
+---
+name: ci
+
+on:
+  - push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make test
+  build:
+    requires:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - run: make
+  help:
+    requires:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - name: help
+        run: ./bin/zoi.linux --help
+  smoke-test:
+    requires:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - name: parse a test file
+        run: make simple
+        env:
+          GITHUB_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
