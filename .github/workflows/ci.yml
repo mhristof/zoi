@@ -13,8 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: make test
-      - run: make
-      - name: help
+      - name: build
+        run: make
+      - name: smoke-test help
         run: ./bin/zoi.linux --help
-      - name: smoke-test
+      - name: smoke-test simple parse
         run: make simple
