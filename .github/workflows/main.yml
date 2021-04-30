@@ -22,3 +22,5 @@ jobs:
         run: go run main.go --help
       - name: parse a test file
         run: make simple
+        env:
+          GITHUB_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
