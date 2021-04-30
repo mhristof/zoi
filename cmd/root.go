@@ -14,9 +14,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	version string
+)
+
 var rootCmd = &cobra.Command{
-	Use:   "zoi",
-	Short: "Ze Ongoing Improvement",
+	Use:     "zoi",
+	Short:   "Ze Ongoing Improvement",
+	Version: version,
 	Long: heredoc.Doc(`
 		Update libraries and packages with the latest versions.
 

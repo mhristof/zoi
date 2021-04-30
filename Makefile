@@ -6,17 +6,16 @@ endif
 .DEFAULT_GOAL := all
 .ONESHELL:
 
+GIT_REF := $(shell git rev-parse --short HEAD)
+GIT_TAG := $(shell git name-rev --tags --name-only $(GIT_REF))
 UNAME := $(shell uname | tr A-Z a-z)
 GO_SRC := $(shell find ./ -name '*.go')
 
 .PHONY: all
 all: ./bin/zoi.darwin ./bin/zoi.linux
 
-./bin/zoi.darwin: $(GO_SRC)
-	GOOS=darwin go build -o $@ main.go
-
-./bin/zoi.linux: $(GO_SRC)
-	GOOS=linux go build -o $@ main.go
+./bin/zoi.%: $(GO_SRC)
+	GOOS=$* go build -o $@ -ldflags "-X github.com/mhristof/zoi/cmd.version=$(GIT_TAG)+$(GIT_REF)" main.go
 
 .PHONY: fast-test
 fast-test:  ## Run fast tests
@@ -29,6 +28,10 @@ test:	## Run all tests
 .PHONY: simple
 simple: ./bin/zoi.$(UNAME)
 	./bin/zoi.$(UNAME) ./tests/simple.py | python | grep '^https'
+
+.PHONY: install
+install: ./bin/zoi.$(UNAME)
+	cp ./bin/zoi.$(UNAME) ~/bin/zoi
 
 .PHONY: help
 help:           ## Show this help.
