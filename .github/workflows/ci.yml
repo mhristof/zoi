@@ -4,6 +4,9 @@ name: ci
 on:
   - push
 
+env:
+  GITHUB_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -32,5 +35,3 @@ jobs:
     steps:
       - name: parse a test file
         run: make simple
-        env:
-          GITHUB_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
