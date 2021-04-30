@@ -19,3 +19,37 @@ jobs:
         run: ./bin/zoi.linux --help
       - name: smoke-test simple parse
         run: make simple
+      - name: Create Release
+        if: if contains('refs/tags', github.ref)
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: "Hi, this is an automated release"
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset (darwin)
+        if: if contains('refs/tags', github.ref)
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bin/zoi.darwin
+          asset_name: zoi.darwin
+          asset_content_type: application/octet-stream
+      - name: Upload Release Asset (linux)
+        if: if contains('refs/tags', github.ref)
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bin/zoi.linux
+          asset_name: zoi.linux
+          asset_content_type: application/octet-stream
