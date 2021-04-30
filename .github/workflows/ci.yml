@@ -13,25 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: make test
-  build:
-    needs:
-      - test
-    runs-on: ubuntu-latest
-    steps:
       - run: make
-  help:
-    needs:
-      - test
-      - build
-    runs-on: ubuntu-latest
-    steps:
       - name: help
         run: ./bin/zoi.linux --help
-  smoke-test:
-    needs:
-      - test
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - name: parse a test file
+      - name: smoke-test
         run: make simple
