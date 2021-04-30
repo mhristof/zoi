@@ -66,7 +66,7 @@ var rootCmd = &cobra.Command{
 			panic(err)
 		}
 
-		out := os.Stderr
+		out := os.Stdout
 		if inplace {
 			out, err = os.Create(args[0])
 			if err != nil {
