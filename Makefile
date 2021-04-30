@@ -6,11 +6,17 @@ endif
 .DEFAULT_GOAL := all
 .ONESHELL:
 
-.PHONY: all
-all: ./bin/zoi.darwin
+UNAME := $(shell uname | tr A-Z a-z)
+GO_SRC := $(shell find ./ -name '*.go')
 
-./bin/zoi.darwin: $(shell find ./ -name '*.go')
-	go build -o $@ main.go
+.PHONY: all
+all: ./bin/zoi.darwin ./bin/zoi.linux
+
+./bin/zoi.darwin: $(GO_SRC)
+	GOOS=darwin go build -o $@ main.go
+
+./bin/zoi.linux: $(GO_SRC)
+	GOOS=linux go build -o $@ main.go
 
 .PHONY: fast-test
 fast-test:  ## Run fast tests
@@ -21,8 +27,8 @@ test:	## Run all tests
 	go test -v ./...
 
 .PHONY: simple
-simple: ./bin/zoi.darwin
-	./bin/zoi.darwin ./tests/simple.py | python | grep '^https'
+simple: ./bin/zoi.$(UNAME)
+	./bin/zoi.$(UNAME) ./tests/simple.py | python | grep '^https'
 
 .PHONY: help
 help:           ## Show this help.
