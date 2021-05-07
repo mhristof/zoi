@@ -1,16 +1,16 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/MakeNowJust/heredoc"
-	"github.com/mhristof/zoi/docker"
 	"github.com/mhristof/zoi/gh"
 	"github.com/mhristof/zoi/log"
+	"github.com/mhristof/zoi/precommit"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -45,20 +45,16 @@ var rootCmd = &cobra.Command{
 
 		for _, arg := range args {
 			if _, err := os.Stat(arg); os.IsNotExist(err) {
-				return errors.New("File not found")
+				return errors.Wrap(err, "File not found")
 			}
 		}
+
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		Verbose(cmd)
 
-		if args[0] == "docker" && args[1] == "build" {
-			docker.Build(args)
-			return
-		}
-
-		lines, err := ioutil.ReadFile(args[0])
+		byteLines, err := ioutil.ReadFile(args[0])
 		if err != nil {
 			log.WithFields(log.Fields{
 				"err":     err,
@@ -66,12 +62,12 @@ var rootCmd = &cobra.Command{
 			}).Error("Could not read file")
 		}
 
+		out := os.Stdout
 		inplace, err := cmd.Flags().GetBool("inplace")
 		if err != nil {
 			panic(err)
 		}
 
-		out := os.Stdout
 		if inplace {
 			out, err = os.Create(args[0])
 			if err != nil {
@@ -81,16 +77,23 @@ var rootCmd = &cobra.Command{
 			defer out.Close()
 		}
 
+		precommitContents, err := precommit.Update(byteLines)
+		if err == nil {
+			fmt.Fprintf(out, "%s", precommitContents)
+
+			return
+		}
+
 		// lines ends up having one extra line at the end. Im sure there is a
 		// better fix, but meh.
-		llines := strings.Split(string(lines), "\n")
+		llines := strings.Split(string(byteLines), "\n")
 		for _, line := range llines[0 : len(llines)-1] {
 			fmt.Fprintf(out, "%s\n", gh.Release(line))
 		}
 	},
 }
 
-// Verbose Increase verbosity
+// Verbose Increase verbosity.
 func Verbose(cmd *cobra.Command) {
 	verbose, err := cmd.Flags().GetBool("verbose")
 	if err != nil {
@@ -107,7 +110,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Increase verbosity")
 }
 
-// Execute The main function for the root command
+// Execute The main function for the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
