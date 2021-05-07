@@ -168,19 +168,24 @@ func latestTag(client *github.Client, owner, repo, release string) (string, erro
 	}
 
 	latest := tags[0]
+
 	for _, tag := range tags {
 		// skip prepreleases
 		this, err := semver.NewVersion(sanitiseRelease(*tag.Name))
 		if err != nil {
 			continue
 		}
+
 		if this.PreRelease == "" {
 			latest = tag
+
 			break
 		}
 	}
 
-	fmt.Println(fmt.Sprintf("*latest.Name: %+v", *latest.Name))
+	log.WithFields(log.Fields{
+		"*latest.Name": *latest.Name,
+	}).Debug("Latest release name")
 
 	return *latest.Name, nil
 }
