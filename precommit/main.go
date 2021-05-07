@@ -23,7 +23,7 @@ type Config struct {
 	Repos []*Repo `yaml:"repos,omitempty"`
 }
 
-func Update(bytes []byte) (string, error) {
+func Update(bytes []byte, token string) (string, error) {
 	var config Config
 
 	err := yaml.Unmarshal(bytes, &config)
@@ -33,7 +33,7 @@ func Update(bytes []byte) (string, error) {
 
 	for _, repo := range config.Repos {
 		latest := strings.TrimPrefix(
-			gh.Release(fmt.Sprintf("%s?ref=%s", repo.Repo, repo.Rev)),
+			gh.Release(fmt.Sprintf("%s?ref=%s", repo.Repo, repo.Rev), token),
 			fmt.Sprintf("%s?ref=", repo.Repo),
 		)
 		repo.Rev = latest

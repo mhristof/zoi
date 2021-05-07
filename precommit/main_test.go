@@ -2,6 +2,7 @@ package precommit
 
 import (
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,8 +30,13 @@ func TestUpdate(t *testing.T) {
 		},
 	}
 
+	ghToken := os.Getenv("GITHUB_READONLY_TOKEN")
+	if ghToken == "" {
+		t.Fatal("Error. GITHUB_READONLY_TOKEN not set")
+	}
+
 	for _, test := range cases {
-		_, err := Update(test.input)
+		_, err := Update(test.input, ghToken)
 		assert.Equal(t, test.err, err, test.name)
 	}
 }

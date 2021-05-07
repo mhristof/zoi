@@ -2,6 +2,7 @@ package gh
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -143,7 +144,13 @@ func TestNextReleaseUrl(t *testing.T) {
 		},
 	}
 
+	ghToken := os.Getenv("GITHUB_READONLY_TOKEN")
+	if ghToken == "" {
+		t.Fatal("Error. GITHUB_READONLY_TOKEN not set")
+	}
+
 	for _, test := range cases {
+		test.repo.Token = ghToken
 		next, _ := test.repo.NextRelease()
 		assert.Equal(t, test.out, next, test.name)
 

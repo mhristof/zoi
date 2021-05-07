@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"syscall"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/mhristof/zoi/gh"
@@ -12,6 +13,7 @@ import (
 	"github.com/mhristof/zoi/precommit"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -77,7 +79,8 @@ var rootCmd = &cobra.Command{
 			defer out.Close()
 		}
 
-		precommitContents, err := precommit.Update(byteLines)
+		ghToken := getGithubToken()
+		precommitContents, err := precommit.Update(byteLines, ghToken)
 		if err == nil {
 			fmt.Fprintf(out, "%s", precommitContents)
 
@@ -88,9 +91,27 @@ var rootCmd = &cobra.Command{
 		// better fix, but meh.
 		llines := strings.Split(string(byteLines), "\n")
 		for _, line := range llines[0 : len(llines)-1] {
-			fmt.Fprintf(out, "%s\n", gh.Release(line))
+			fmt.Fprintf(out, "%s\n", gh.Release(line, ghToken))
 		}
 	},
+}
+
+func getGithubToken() string {
+	ghToken := os.Getenv("GITHUB_READONLY_TOKEN")
+	if ghToken != "" {
+		return ghToken
+	}
+
+	fmt.Print("Enter github token: ")
+
+	byteToken, err := terminal.ReadPassword(syscall.Stdin)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Error("Cannot read github token")
+	}
+
+	return string(byteToken)
 }
 
 // Verbose Increase verbosity.

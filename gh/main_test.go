@@ -2,6 +2,7 @@ package gh
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -47,7 +48,12 @@ func TestRelease(t *testing.T) {
 		},
 	}
 
+	ghToken := os.Getenv("GITHUB_READONLY_TOKEN")
+	if ghToken == "" {
+		t.Fatal("error, GITHUB_READONLY_TOKEN not set")
+	}
+
 	for _, test := range cases {
-		assert.Equal(t, test.out, Release(test.in), test.name)
+		assert.Equal(t, test.out, Release(test.in, ghToken), test.name)
 	}
 }

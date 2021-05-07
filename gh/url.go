@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/coreos/go-semver/semver"
@@ -19,6 +18,7 @@ type Url struct {
 	Repo    string
 	Release string
 	Url     string
+	Token   string
 }
 
 var (
@@ -119,16 +119,21 @@ func getRelease(parts ...string) string {
 }
 
 func (u *Url) NextRelease() (string, error) {
+	if u.Token == "" {
+		log.WithFields(log.Fields{
+			"url": u,
+		}).Panic("url.Token not set")
+	}
+
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_READONLY_TOKEN")},
+		&oauth2.Token{AccessToken: u.Token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
 	client := github.NewClient(tc)
 
 	release, err := latestRelease(client, u.Owner, u.Repo)
-
 	if err != nil {
 		release, err = latestTag(client, u.Owner, u.Repo, u.Release)
 		if err != nil {
