@@ -210,7 +210,10 @@ func latestRelease(client *github.Client, owner, repo string) (string, error) {
 
 	latest := releases[0]
 	for _, release := range releases {
-		this := semver.New(sanitiseRelease(*release.TagName))
+		this, err := semver.NewVersion(sanitiseRelease(*release.TagName))
+		if err != nil {
+			continue
+		}
 
 		if semver.New(sanitiseRelease(*latest.TagName)).LessThan(*this) {
 			latest = release
