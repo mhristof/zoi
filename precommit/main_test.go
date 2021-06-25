@@ -19,14 +19,21 @@ func slurp(t *testing.T, file string) []byte {
 
 func TestUpdate(t *testing.T) {
 	var cases = []struct {
-		name  string
-		input []byte
-		err   error
+		name   string
+		input  []byte
+		output []byte
+		err    error
 	}{
 		{
 			name:  "valid precommit config file",
 			input: slurp(t, "../.pre-commit-config.yaml"),
 			err:   nil,
+		},
+		{
+			name:   "valid precommit config file",
+			input:  slurp(t, "../test/fixtures/pre-commit.yaml"),
+			output: slurp(t, "../test/fixtures/pre-commit.updated.yaml"),
+			err:    nil,
 		},
 	}
 
@@ -36,7 +43,10 @@ func TestUpdate(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		_, err := Update(test.input, ghToken)
+		output, err := Update(test.input, ghToken)
 		assert.Equal(t, test.err, err, test.name)
+		if test.output != nil {
+			assert.Equal(t, test.output, []byte(output), test.name)
+		}
 	}
 }
