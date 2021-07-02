@@ -41,7 +41,7 @@ func TestParseHttpUrl(t *testing.T) {
 			name: "short github url",
 			in:   "https://github.com/mhristof",
 			out:  nil,
-			err:  ErrorUrlTooShort,
+			err:  ErrorURLTooShort,
 		},
 		{
 			name: "wrong host",
