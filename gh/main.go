@@ -13,6 +13,7 @@ func Release(line, token string) string {
 	var parsers = []func(string) (*Url, error){
 		parseGit,
 		parseHttp,
+		parseAction,
 	}
 
 	for _, parser := range parsers {
