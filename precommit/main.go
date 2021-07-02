@@ -5,24 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	pr "github.com/mhristof/go-precommit"
 	"github.com/mhristof/zoi/gh"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
-type Repo struct {
-	Repo  string `yaml:"repo,omitempty"`
-	Rev   string `yaml:"rev,omitempty"`
-	Hooks []struct {
-		Args    []string `yaml:"args,omitempty"`
-		ID      string   `yaml:"id,omitempty"`
-		Name    string   `yaml:"name,omitempty"`
-		Exclude string   `yaml:"exclude,omitempty"`
-	} `yaml:"hooks,omitempty"`
-}
-
 type Config struct {
-	Repos []*Repo `yaml:"repos,omitempty"`
+	Repos []*pr.Repo `yaml:"repos,omitempty"`
 }
 
 func Update(bytesIn []byte, token string) (string, error) {
