@@ -22,12 +22,12 @@ type Url struct {
 }
 
 var (
-	ErrorUrlTooShort      = errors.New("URL too short")
+	ErrorURLtooshort      = errors.New("URL too short")
 	ErrorWrongHost        = errors.New("URL host is wrong")
-	ErrorNoReleases       = errors.New("No releases available")
-	ErrorCannotHandleURL  = errors.New("Cannot handle the url")
-	ErrorNoTags           = errors.New("No tags available")
-	ErrorReleaseNotInTags = errors.New("Release string not a tag")
+	ErrorNoReleases       = errors.New("no releases available")
+	ErrorCannotHandleURL  = errors.New("cannot handle the url")
+	ErrorNoTags           = errors.New("no tags available")
+	ErrorReleaseNotInTags = errors.New("release string not a tag")
 )
 
 func ParseGitUrl(url string) (*Url, error) {
@@ -38,6 +38,7 @@ func ParseGitUrl(url string) (*Url, error) {
 	var ret = Url{
 		Url: url,
 	}
+
 	release := strings.Split(url, "=")
 
 	if len(release) == 2 {
@@ -50,7 +51,7 @@ func ParseGitUrl(url string) (*Url, error) {
 		return nil, ErrorWrongHost
 	}
 
-	ret.Host = strings.Replace(host[0], "git@", "", -1)
+	ret.Host = strings.ReplaceAll(host[0], "git@", "")
 
 	owner := strings.Split(host[1], "/")
 
@@ -83,7 +84,7 @@ func ParseHttpUrl(url string) (*Url, error) {
 	parts := strings.Split(url, "/")
 
 	if len(parts) < 5 {
-		return nil, ErrorUrlTooShort
+		return nil, ErrorURLtooshort
 	}
 
 	return &Url{
@@ -102,11 +103,11 @@ func sanitiseRepo(repo string) string {
 	}
 
 	repo = strings.TrimSuffix(repo, ".git")
+
 	return repo
 }
 
 func getRelease(parts ...string) string {
-
 	if len(parts) > 7 && parts[5] == "releases" && parts[6] == "download" {
 		return parts[7]
 	}
@@ -135,7 +136,7 @@ func (u *Url) NextRelease() (string, error) {
 
 	release, err := latestRelease(client, u.Owner, u.Repo)
 	if err != nil {
-		release, err = latestTag(client, u.Owner, u.Repo, u.Release)
+		release, err = latestTag(client, u.Owner, u.Repo)
 		if err != nil {
 			return "", ErrorCannotHandleURL
 		}
@@ -158,9 +159,10 @@ func (u *Url) NextRelease() (string, error) {
 	), nil
 }
 
-func latestTag(client *github.Client, owner, repo, release string) (string, error) {
+func latestTag(client *github.Client, owner, repo string) (string, error) {
 	ctx := context.Background()
 	opt := &github.ListOptions{}
+
 	tags, _, err := client.Repositories.ListTags(ctx, owner, repo, opt)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -194,9 +196,11 @@ func latestTag(client *github.Client, owner, repo, release string) (string, erro
 
 	return *latest.Name, nil
 }
+
 func latestRelease(client *github.Client, owner, repo string) (string, error) {
 	ctx := context.Background()
 	opt := &github.ListOptions{}
+
 	releases, _, err := client.Repositories.ListReleases(ctx, owner, repo, opt)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -209,6 +213,7 @@ func latestRelease(client *github.Client, owner, repo string) (string, error) {
 	}
 
 	latest := releases[0]
+
 	for _, release := range releases {
 		this, err := semver.NewVersion(sanitiseRelease(*release.TagName))
 		if err != nil {
@@ -219,6 +224,7 @@ func latestRelease(client *github.Client, owner, repo string) (string, error) {
 			latest = release
 		}
 	}
+
 	return *latest.TagName, nil
 }
 
