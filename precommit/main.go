@@ -7,6 +7,7 @@ import (
 
 	pr "github.com/mhristof/go-precommit"
 	"github.com/mhristof/zoi/gh"
+	"github.com/mhristof/zoi/log"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
@@ -15,6 +16,10 @@ type Config struct {
 	Repos []*pr.Repo `yaml:"repos,omitempty"`
 }
 
+var (
+	ErrorEmptyReposConfig = errors.New("Empty `repos` field")
+)
+
 func Update(bytesIn []byte, token string) (string, error) {
 	var config Config
 
@@ -22,6 +27,14 @@ func Update(bytesIn []byte, token string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "Cannot unmarshal config")
 	}
+
+	if len(config.Repos) == 0 {
+		return "", ErrorEmptyReposConfig
+	}
+
+	log.WithFields(log.Fields{
+		"err": err,
+	}).Debug("Handling a precommit file")
 
 	for _, repo := range config.Repos {
 		latest := strings.TrimPrefix(

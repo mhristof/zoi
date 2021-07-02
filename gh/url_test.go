@@ -41,7 +41,7 @@ func TestParseHttpUrl(t *testing.T) {
 			name: "short github url",
 			in:   "https://github.com/mhristof",
 			out:  nil,
-			err:  ErrorUrlTooShort,
+			err:  ErrorURLTooShort,
 		},
 		{
 			name: "wrong host",
@@ -141,6 +141,17 @@ func TestNextReleaseUrl(t *testing.T) {
 				Url:     "https://github.com/mhristof/zoi-cli-cli/releases/download/v1.7.0/gh_1.7.0_$(GH_OS)_amd64.tar.gz",
 			},
 			out: "https://github.com/mhristof/zoi-cli-cli/releases/download/v1.9.1/gh_1.9.1_$(GH_OS)_amd64.tar.gz",
+		},
+		{
+			name: "github actions url",
+			repo: Url{
+				Host:    "https://github.com",
+				Owner:   "mhristof",
+				Repo:    "zoi-github-autopr",
+				Release: "0.1.1",
+				Url:     "mhristof/zoi-github-autopr@0.1.1",
+			},
+			out: "mhristof/zoi-github-autopr@0.2.0",
 		},
 	}
 
