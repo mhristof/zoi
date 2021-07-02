@@ -35,6 +35,12 @@ func TestUpdate(t *testing.T) {
 			output: slurp(t, "../test/fixtures/pre-commit.updated.yaml"),
 			err:    nil,
 		},
+		{
+			name:   "invalid precommit file",
+			input:  slurp(t, "../.github/workflows/pr.yml"),
+			output: []byte{},
+			err:    ErrorEmptyReposConfig,
+		},
 	}
 
 	ghToken := os.Getenv("GITHUB_READONLY_TOKEN")
