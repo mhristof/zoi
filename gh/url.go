@@ -22,7 +22,7 @@ type Url struct {
 }
 
 var (
-	ErrorURLtooshort      = errors.New("URL too short")
+	ErrorURLTooshort      = errors.New("URL too short")
 	ErrorWrongHost        = errors.New("URL host is wrong")
 	ErrorNoReleases       = errors.New("no releases available")
 	ErrorCannotHandleURL  = errors.New("cannot handle the url")
@@ -84,7 +84,7 @@ func ParseHttpUrl(url string) (*Url, error) {
 	parts := strings.Split(url, "/")
 
 	if len(parts) < 5 {
-		return nil, ErrorURLtooshort
+		return nil, ErrorURLTooshort
 	}
 
 	return &Url{
