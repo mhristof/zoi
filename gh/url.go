@@ -148,15 +148,33 @@ func (u *Url) NextRelease() (string, error) {
 		"release":   release,
 	}).Debug("New release")
 
-	return strings.ReplaceAll(
-		strings.ReplaceAll(
-			// replace all versions in string
-			u.Url, u.Release, release,
-		),
-		// replace version that might exist without the v prefix
-		strings.TrimPrefix(u.Release, "v"),
-		strings.TrimPrefix(release, "v"),
-	), nil
+	releaseNew := strings.ReplaceAll(
+		// replace all versions in string
+		u.Url, u.Release, release,
+	)
+
+	currentReleaseWithoutV := strings.TrimPrefix(u.Release, "v")
+
+	if !strings.Contains(release, currentReleaseWithoutV) || len(currentReleaseWithoutV) != 1 {
+		// if the release is something like `v2` and the new release is
+		// something like `v2.3.1`, then this replace should not happen as
+		// it will result in a string like `v2.3.1.3.1`
+		log.WithFields(log.Fields{
+			"releaseNew":             releaseNew,
+			"u":                      u,
+			"release":                release,
+			"currentReleaseWithoutV": currentReleaseWithoutV,
+		}).Debug("Replacing all occurrences")
+
+		releaseNew = strings.ReplaceAll(
+			releaseNew,
+			// replace version that might exist without the v prefix
+			strings.TrimPrefix(u.Release, "v"),
+			strings.TrimPrefix(release, "v"),
+		)
+	}
+
+	return releaseNew, nil
 }
 
 func latestTag(client *github.Client, owner, repo string) (string, error) {

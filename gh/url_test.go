@@ -153,6 +153,17 @@ func TestNextReleaseUrl(t *testing.T) {
 			},
 			out: "mhristof/zoi-github-autopr@0.2.0",
 		},
+		{
+			name: "short version that is contained in the new version string as well",
+			repo: Url{
+				Host:    "https://github.com",
+				Owner:   "mhristof",
+				Repo:    "zoi-checkout",
+				Release: "v2",
+				Url:     "mhristof/zoi-checkout@v2",
+			},
+			out: "mhristof/zoi-checkout@v2.3.4",
+		},
 	}
 
 	ghToken := os.Getenv("GITHUB_READONLY_TOKEN")
