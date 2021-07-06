@@ -230,7 +230,7 @@ func TestSanitize(t *testing.T) {
 			exp: "foo@v2.1",
 		},
 		{
-			name:    "URL with multiple occurences of the release tag",
+			name:    "URL with multiple occurences of the release tag (without `v`)",
 			release: "v2.1",
 			u: Url{
 				Release: "v2.0",
