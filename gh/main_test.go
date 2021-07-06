@@ -54,6 +54,6 @@ func TestRelease(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		assert.Equal(t, test.out, Release(test.in, ghToken), test.name)
+		assert.Equal(t, test.out, Release(test.in, false, ghToken), test.name)
 	}
 }

@@ -119,7 +119,7 @@ func getRelease(parts ...string) string {
 	return ""
 }
 
-func (u *Url) NextRelease() (string, error) {
+func (u *Url) NextRelease(prefTags bool) (string, error) {
 	if u.Token == "" {
 		log.WithFields(log.Fields{
 			"url": u,
@@ -134,10 +134,10 @@ func (u *Url) NextRelease() (string, error) {
 
 	client := github.NewClient(tc)
 
-	release, releaseErr := latestRelease(client, u.Owner, u.Repo)
 	tag, tagErr := latestTag(client, u.Owner, u.Repo)
+	release, releaseErr := latestRelease(client, u.Owner, u.Repo)
 
-	if releaseErr == nil && tagErr == nil && tag != release {
+	if !prefTags && (releaseErr == nil && tagErr == nil && tag != release) {
 		log.WithFields(log.Fields{
 			"release": release,
 			"tag":     tag,
@@ -145,7 +145,7 @@ func (u *Url) NextRelease() (string, error) {
 		}).Warning("warning, latest tag doesnt match latest release")
 	}
 
-	if releaseErr != nil && tagErr == nil {
+	if tagErr == nil && (prefTags || releaseErr != nil) {
 		release = tag
 	}
 

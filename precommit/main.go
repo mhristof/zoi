@@ -20,7 +20,7 @@ var (
 	ErrorEmptyReposConfig = errors.New("Empty `repos` field")
 )
 
-func Update(bytesIn []byte, token string) (string, error) {
+func Update(bytesIn []byte, prefTags bool, token string) (string, error) {
 	var config Config
 
 	err := yaml.Unmarshal(bytesIn, &config)
@@ -38,7 +38,7 @@ func Update(bytesIn []byte, token string) (string, error) {
 
 	for _, repo := range config.Repos {
 		latest := strings.TrimPrefix(
-			gh.Release(fmt.Sprintf("%s?ref=%s", repo.Repo, repo.Rev), token),
+			gh.Release(fmt.Sprintf("%s?ref=%s", repo.Repo, repo.Rev), prefTags, token),
 			fmt.Sprintf("%s?ref=", repo.Repo),
 		)
 		repo.Rev = latest

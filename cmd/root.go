@@ -56,6 +56,11 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		Verbose(cmd)
 
+		prefTags, err := cmd.Flags().GetBool("pref-tags")
+		if err != nil {
+			panic(err)
+		}
+
 		byteLines, err := ioutil.ReadFile(args[0])
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -80,7 +85,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		ghToken := getGithubToken()
-		precommitContents, err := precommit.Update(byteLines, ghToken)
+		precommitContents, err := precommit.Update(byteLines, prefTags, ghToken)
 		if err == nil {
 			fmt.Fprintf(out, "%s", precommitContents)
 
@@ -95,7 +100,7 @@ var rootCmd = &cobra.Command{
 		// better fix, but meh.
 		llines := strings.Split(string(byteLines), "\n")
 		for _, line := range llines[0 : len(llines)-1] {
-			fmt.Fprintf(out, "%s\n", gh.Release(line, ghToken))
+			fmt.Fprintf(out, "%s\n", gh.Release(line, prefTags, ghToken))
 		}
 	},
 }
@@ -132,6 +137,7 @@ func Verbose(cmd *cobra.Command) {
 
 func init() {
 	rootCmd.PersistentFlags().BoolP("inplace", "i", false, "Inplace replacement of the target file")
+	rootCmd.PersistentFlags().BoolP("pref-tags", "t", true, "Prefer tags rather than releases when finding a new version")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Increase verbosity")
 }
 

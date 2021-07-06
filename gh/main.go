@@ -9,7 +9,7 @@ import (
 	"mvdan.cc/xurls/v2"
 )
 
-func Release(line, token string) string {
+func Release(line string, prefTags bool, token string) string {
 	var parsers = []func(string) (*Url, error){
 		parseGit,
 		parseHttp,
@@ -27,7 +27,7 @@ func Release(line, token string) string {
 		}
 		gURL.Token = token
 
-		next, err := gURL.NextRelease()
+		next, err := gURL.NextRelease(prefTags)
 		if err != nil {
 			return line
 		}

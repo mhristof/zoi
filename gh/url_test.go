@@ -116,9 +116,10 @@ func TestParseGitUrl(t *testing.T) {
 
 func TestNextReleaseUrl(t *testing.T) {
 	var cases = []struct {
-		name string
-		repo Url
-		out  string
+		name     string
+		repo     Url
+		out      string
+		prefTags bool
 	}{
 		{
 			name: "next release for mhristof/semver repo",
@@ -175,6 +176,30 @@ func TestNextReleaseUrl(t *testing.T) {
 			},
 			out: "mhristof/zoi-go-humanize?ref=v1.0.0",
 		},
+		{
+			name: "prefer the latest tag",
+			repo: Url{
+				Host:    "https://github.com",
+				Owner:   "mhristof",
+				Repo:    "zoi-go-humanize",
+				Release: "v1.0.0",
+				Url:     "mhristof/zoi-go-humanize?ref=v1.0.0",
+			},
+			prefTags: true,
+			out:      "mhristof/zoi-go-humanize?ref=v1.1.0",
+		},
+		{
+			name: "prefer the latest release",
+			repo: Url{
+				Host:    "https://github.com",
+				Owner:   "mhristof",
+				Repo:    "zoi-go-humanize",
+				Release: "v1.0.0",
+				Url:     "mhristof/zoi-go-humanize?ref=v1.0.0",
+			},
+			prefTags: false,
+			out:      "mhristof/zoi-go-humanize?ref=v1.0.0",
+		},
 	}
 
 	ghToken := os.Getenv("GITHUB_READONLY_TOKEN")
@@ -184,7 +209,7 @@ func TestNextReleaseUrl(t *testing.T) {
 
 	for _, test := range cases {
 		test.repo.Token = ghToken
-		next, _ := test.repo.NextRelease()
+		next, _ := test.repo.NextRelease(test.prefTags)
 		assert.Equal(t, test.out, next, test.name)
 
 	}

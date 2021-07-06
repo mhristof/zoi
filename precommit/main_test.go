@@ -49,7 +49,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		output, err := Update(test.input, ghToken)
+		output, err := Update(test.input, false, ghToken)
 		assert.Equal(t, test.err, err, test.name)
 		if test.output != nil {
 			assert.Equal(t, test.output, []byte(output), test.name)
