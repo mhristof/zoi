@@ -87,6 +87,10 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Debug("Handling liny by line")
+
 		// lines ends up having one extra line at the end. Im sure there is a
 		// better fix, but meh.
 		llines := strings.Split(string(byteLines), "\n")

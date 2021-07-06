@@ -164,6 +164,17 @@ func TestNextReleaseUrl(t *testing.T) {
 			},
 			out: "mhristof/zoi-checkout@v2.3.4",
 		},
+		{
+			name: "project with an older release and a newer tag",
+			repo: Url{
+				Host:    "https://github.com",
+				Owner:   "mhristof",
+				Repo:    "zoi-go-humanize",
+				Release: "v1.0.0",
+				Url:     "mhristof/zoi-go-humanize?ref=v1.0.0",
+			},
+			out: "mhristof/zoi-go-humanize?ref=v1.0.0",
+		},
 	}
 
 	ghToken := os.Getenv("GITHUB_READONLY_TOKEN")

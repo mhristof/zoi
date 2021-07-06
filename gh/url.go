@@ -134,12 +134,23 @@ func (u *Url) NextRelease() (string, error) {
 
 	client := github.NewClient(tc)
 
-	release, err := latestRelease(client, u.Owner, u.Repo)
-	if err != nil {
-		release, err = latestTag(client, u.Owner, u.Repo)
-		if err != nil {
-			return "", ErrorCannotHandleURL
-		}
+	release, releaseErr := latestRelease(client, u.Owner, u.Repo)
+	tag, tagErr := latestTag(client, u.Owner, u.Repo)
+
+	if releaseErr == nil && tagErr == nil && tag != release {
+		log.WithFields(log.Fields{
+			"release": release,
+			"tag":     tag,
+			"u.Url":   u.Url,
+		}).Warning("warning, latest tag doesnt match latest release")
+	}
+
+	if releaseErr != nil && tagErr == nil {
+		release = tag
+	}
+
+	if releaseErr != nil && tagErr != nil {
+		return "", ErrorCannotHandleURL
 	}
 
 	log.WithFields(log.Fields{

@@ -19,7 +19,10 @@ func Release(line, token string) string {
 	for _, parser := range parsers {
 		gURL, err := parser(line)
 		if err != nil || gURL.Release == "" {
-			// wrong parser
+			log.WithFields(log.Fields{
+				"err":  err,
+				"line": line,
+			}).Debug("Wrong parser")
 			continue
 		}
 		gURL.Token = token
