@@ -212,3 +212,35 @@ func Test(t *testing.T) {
 		assert.Equal(t, test.out, getRelease(test.in...), test.name)
 	}
 }
+
+func TestSanitize(t *testing.T) {
+	var cases = []struct {
+		name    string
+		release string
+		u       Url
+		exp     string
+	}{
+		{
+			name:    "single letter current release that is included in the new release",
+			release: "v2.1",
+			u: Url{
+				Release: "v2",
+				Url:     "foo@v2",
+			},
+			exp: "foo@v2.1",
+		},
+		{
+			name:    "URL with multiple occurences of the release tag",
+			release: "v2.1",
+			u: Url{
+				Release: "v2.0",
+				Url:     "https://foo/v2.0/2.0.zip",
+			},
+			exp: "https://foo/v2.1/2.1.zip",
+		},
+	}
+
+	for _, test := range cases {
+		assert.Equal(t, test.exp, test.u.sanitize(test.release), test.name)
+	}
+}
